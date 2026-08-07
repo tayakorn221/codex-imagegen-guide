@@ -1,0 +1,967 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>คู่มือใช้ Codex สร้างภาพอย่างแยบยล</title>
+  <meta name="description" content="คู่มือภาษาไทยสำหรับใช้ Codex image generation ให้ได้ภาพที่ลึกซึ้ง ควบคุมได้ และพร้อมใช้งานจริง">
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: oklch(18% 0.024 72);
+      --ink-soft: oklch(35% 0.03 74);
+      --muted: oklch(49% 0.035 83);
+      --paper: oklch(96% 0.018 86);
+      --paper-strong: oklch(99% 0.012 86);
+      --wash: oklch(91% 0.026 84);
+      --line: oklch(78% 0.035 83);
+      --leaf: oklch(38% 0.075 158);
+      --leaf-soft: oklch(88% 0.047 154);
+      --copper: oklch(52% 0.105 47);
+      --copper-soft: oklch(89% 0.055 57);
+      --blueprint: oklch(40% 0.072 226);
+      --blueprint-soft: oklch(89% 0.035 226);
+      --shadow: 0 18px 42px color-mix(in oklch, var(--ink) 16%, transparent);
+      --radius: 8px;
+      --space-1: 0.25rem;
+      --space-2: 0.5rem;
+      --space-3: 0.75rem;
+      --space-4: 1rem;
+      --space-6: 1.5rem;
+      --space-8: 2rem;
+      --space-12: 3rem;
+      --space-16: 4rem;
+      --measure: 68ch;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      background: var(--paper);
+    }
+
+    body {
+      margin: 0;
+      font-family: "Noto Sans Thai", "Leelawadee UI", "Segoe UI", Tahoma, sans-serif;
+      font-size: 1rem;
+      line-height: 1.72;
+      color: var(--ink);
+      background:
+        linear-gradient(180deg, color-mix(in oklch, var(--paper-strong) 82%, var(--leaf-soft)) 0%, var(--paper) 38%, color-mix(in oklch, var(--paper) 80%, var(--blueprint-soft)) 100%);
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .skip-link {
+      position: fixed;
+      left: var(--space-4);
+      top: var(--space-4);
+      z-index: 20;
+      padding: var(--space-2) var(--space-3);
+      background: var(--ink);
+      color: var(--paper-strong);
+      border-radius: var(--radius);
+      transform: translateY(-140%);
+      transition: transform 180ms ease;
+    }
+
+    .skip-link:focus {
+      transform: translateY(0);
+    }
+
+    .hero {
+      position: relative;
+      min-height: 34rem;
+      display: grid;
+      align-items: end;
+      padding: max(1rem, env(safe-area-inset-top)) var(--space-4) var(--space-8);
+      overflow: hidden;
+      isolation: isolate;
+      color: var(--paper-strong);
+      background: var(--ink);
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -2;
+      background-image: url("codex-imagegen-guide-assets/coffee-hero.png");
+      background-size: cover;
+      background-position: center;
+      filter: saturate(0.96) contrast(1.03);
+      transform: scale(1.01);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background:
+        linear-gradient(90deg, color-mix(in oklch, var(--ink) 88%, transparent) 0%, color-mix(in oklch, var(--ink) 61%, transparent) 42%, color-mix(in oklch, var(--ink) 18%, transparent) 100%),
+        linear-gradient(0deg, color-mix(in oklch, var(--ink) 42%, transparent) 0%, transparent 54%);
+    }
+
+    .hero-inner {
+      width: min(76rem, 100%);
+      margin: 0 auto;
+      display: grid;
+      gap: var(--space-4);
+    }
+
+    .kicker {
+      margin: 0;
+      max-width: var(--measure);
+      color: oklch(86% 0.048 86);
+      font-size: 0.86rem;
+      font-weight: 700;
+    }
+
+    h1,
+    h2,
+    h3 {
+      margin: 0;
+      line-height: 1.18;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      max-width: 13ch;
+      font-size: 3.25rem;
+    }
+
+    .hero p {
+      max-width: 56ch;
+      margin: 0;
+      color: oklch(91% 0.018 87);
+      font-size: 1.18rem;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-3);
+      margin-top: var(--space-2);
+    }
+
+    .button {
+      min-height: 2.75rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      padding: 0.7rem 1rem;
+      border: 1px solid color-mix(in oklch, var(--paper-strong) 42%, transparent);
+      border-radius: var(--radius);
+      color: var(--paper-strong);
+      background: color-mix(in oklch, var(--paper-strong) 12%, transparent);
+      text-decoration: none;
+      font-weight: 700;
+      line-height: 1.2;
+      transition: transform 160ms ease, background 160ms ease, border-color 160ms ease;
+    }
+
+    .button.primary {
+      background: var(--paper-strong);
+      color: var(--ink);
+      border-color: var(--paper-strong);
+    }
+
+    .button:hover,
+    .button:focus-visible {
+      transform: translateY(-1px);
+      background: color-mix(in oklch, var(--paper-strong) 20%, transparent);
+      outline: none;
+    }
+
+    .button.primary:hover,
+    .button.primary:focus-visible {
+      background: var(--copper-soft);
+      border-color: var(--copper-soft);
+    }
+
+    .shell {
+      width: min(76rem, calc(100% - 2rem));
+      margin: 0 auto;
+      display: grid;
+      gap: var(--space-8);
+      padding: var(--space-8) 0 var(--space-16);
+    }
+
+    .layout {
+      display: grid;
+      gap: var(--space-8);
+    }
+
+    .toc {
+      display: grid;
+      gap: var(--space-3);
+      align-self: start;
+      padding: var(--space-4);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: color-mix(in oklch, var(--paper-strong) 76%, transparent);
+    }
+
+    .toc strong {
+      font-size: 0.9rem;
+    }
+
+    .toc a {
+      display: block;
+      padding: var(--space-2) 0;
+      color: var(--ink-soft);
+      text-decoration: none;
+      border-top: 1px solid color-mix(in oklch, var(--line) 52%, transparent);
+      line-height: 1.35;
+    }
+
+    .toc a:hover,
+    .toc a:focus-visible {
+      color: var(--leaf);
+      outline: none;
+    }
+
+    main {
+      display: grid;
+      gap: var(--space-12);
+      min-width: 0;
+    }
+
+    section {
+      scroll-margin-top: var(--space-8);
+    }
+
+    .section-head {
+      display: grid;
+      gap: var(--space-3);
+      margin-bottom: var(--space-6);
+    }
+
+    .eyebrow {
+      margin: 0;
+      color: var(--copper);
+      font-size: 0.82rem;
+      font-weight: 800;
+    }
+
+    h2 {
+      max-width: 17ch;
+      font-size: 2rem;
+    }
+
+    h3 {
+      font-size: 1.2rem;
+    }
+
+    p {
+      max-width: var(--measure);
+      margin: 0 0 var(--space-4);
+    }
+
+    .lead {
+      color: var(--ink-soft);
+      font-size: 1.12rem;
+    }
+
+    .principle-grid,
+    .usecase-grid,
+    .repair-grid {
+      display: grid;
+      gap: var(--space-4);
+    }
+
+    .principle,
+    .usecase,
+    .repair {
+      padding: var(--space-5, 1.25rem);
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      background: color-mix(in oklch, var(--paper-strong) 78%, var(--paper));
+    }
+
+    .principle {
+      display: grid;
+      gap: var(--space-2);
+    }
+
+    .number {
+      display: inline-flex;
+      width: 2rem;
+      height: 2rem;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: var(--leaf-soft);
+      color: var(--leaf);
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .usecase {
+      border-color: color-mix(in oklch, var(--blueprint) 25%, var(--line));
+      background: color-mix(in oklch, var(--blueprint-soft) 48%, var(--paper-strong));
+    }
+
+    .usecase strong,
+    .repair strong {
+      display: block;
+      margin-bottom: var(--space-2);
+      line-height: 1.35;
+    }
+
+    .usecase span,
+    .repair span,
+    .principle span {
+      color: var(--ink-soft);
+    }
+
+    .formula {
+      display: grid;
+      gap: var(--space-4);
+    }
+
+    .code-panel {
+      overflow: hidden;
+      border: 1px solid color-mix(in oklch, var(--ink) 18%, var(--line));
+      border-radius: var(--radius);
+      background: oklch(21% 0.028 80);
+      box-shadow: var(--shadow);
+    }
+
+    .code-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-3);
+      min-height: 3rem;
+      padding: var(--space-2) var(--space-3);
+      color: oklch(88% 0.025 84);
+      border-bottom: 1px solid color-mix(in oklch, var(--paper-strong) 14%, transparent);
+      background: color-mix(in oklch, var(--ink) 58%, oklch(26% 0.045 78));
+    }
+
+    .code-bar span {
+      font-size: 0.82rem;
+      font-weight: 800;
+    }
+
+    .copy-button {
+      min-height: 2.4rem;
+      padding: 0.48rem 0.72rem;
+      border: 1px solid color-mix(in oklch, var(--paper-strong) 34%, transparent);
+      border-radius: var(--radius);
+      color: oklch(94% 0.02 86);
+      background: color-mix(in oklch, var(--paper-strong) 9%, transparent);
+      font: inherit;
+      font-size: 0.86rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .copy-button:hover,
+    .copy-button:focus-visible {
+      outline: 2px solid var(--copper-soft);
+      outline-offset: 2px;
+    }
+
+    pre {
+      margin: 0;
+      padding: var(--space-4);
+      overflow-x: auto;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      color: oklch(93% 0.018 85);
+      font-family: "Cascadia Mono", "Consolas", "Noto Sans Mono", monospace;
+      font-size: 0.92rem;
+      line-height: 1.62;
+      tab-size: 2;
+    }
+
+    code {
+      font-family: "Cascadia Mono", "Consolas", "Noto Sans Mono", monospace;
+      font-variant-ligatures: none;
+    }
+
+    .workflow {
+      display: grid;
+      gap: 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .step {
+      display: grid;
+      gap: var(--space-3);
+      padding: var(--space-6) 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .step-label {
+      color: var(--copper);
+      font-size: 0.86rem;
+      font-weight: 900;
+    }
+
+    .callout {
+      padding: var(--space-6);
+      border-radius: var(--radius);
+      border: 1px solid color-mix(in oklch, var(--leaf) 34%, var(--line));
+      background:
+        linear-gradient(135deg, color-mix(in oklch, var(--leaf-soft) 74%, var(--paper-strong)), color-mix(in oklch, var(--copper-soft) 42%, var(--paper-strong)));
+    }
+
+    .callout p:last-child {
+      margin-bottom: 0;
+    }
+
+    .checklist {
+      display: grid;
+      gap: var(--space-2);
+      padding: 0;
+      margin: 0;
+      list-style: none;
+    }
+
+    .checklist li {
+      display: grid;
+      grid-template-columns: 1.8rem 1fr;
+      gap: var(--space-3);
+      align-items: start;
+      padding: var(--space-3) 0;
+      border-bottom: 1px solid color-mix(in oklch, var(--line) 58%, transparent);
+    }
+
+    .checklist li::before {
+      content: "";
+      width: 0.85rem;
+      height: 0.85rem;
+      margin-top: 0.42rem;
+      border: 2px solid var(--leaf);
+      border-radius: 3px;
+      background: var(--paper-strong);
+    }
+
+    details {
+      border-top: 1px solid var(--line);
+    }
+
+    details:last-child {
+      border-bottom: 1px solid var(--line);
+    }
+
+    summary {
+      min-height: 3.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-4);
+      padding: var(--space-3) 0;
+      cursor: pointer;
+      font-weight: 850;
+      line-height: 1.35;
+    }
+
+    summary::after {
+      content: "+";
+      width: 1.8rem;
+      height: 1.8rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      color: var(--leaf);
+      font-weight: 900;
+    }
+
+    details[open] summary::after {
+      content: "-";
+    }
+
+    details > div {
+      padding-bottom: var(--space-5, 1.25rem);
+      color: var(--ink-soft);
+    }
+
+    .footer {
+      padding: var(--space-8) 0 max(var(--space-8), env(safe-area-inset-bottom));
+      color: var(--ink-soft);
+      border-top: 1px solid var(--line);
+    }
+
+    @media (min-width: 720px) {
+      h1 {
+        font-size: 4.8rem;
+      }
+
+      h2 {
+        font-size: 2.55rem;
+      }
+
+      .hero {
+        min-height: 38rem;
+        padding-left: var(--space-8);
+        padding-right: var(--space-8);
+      }
+
+      .principle-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .usecase-grid,
+      .repair-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .step {
+        grid-template-columns: 10rem 1fr;
+      }
+    }
+
+    @media (min-width: 1040px) {
+      .layout {
+        grid-template-columns: 16rem minmax(0, 1fr);
+        align-items: start;
+      }
+
+      .toc {
+        position: sticky;
+        top: var(--space-6);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+      }
+    }
+
+    @media print {
+      .hero {
+        min-height: auto;
+        color: var(--ink);
+        background: none;
+        padding-top: var(--space-8);
+      }
+
+      .hero::before,
+      .hero::after,
+      .toc,
+      .copy-button,
+      .hero-actions {
+        display: none;
+      }
+
+      .shell {
+        width: 100%;
+        padding: 0;
+      }
+
+      .layout {
+        display: block;
+      }
+
+      .code-panel {
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#content">ข้ามไปอ่านคู่มือ</a>
+
+  <header class="hero">
+    <div class="hero-inner">
+      <p class="kicker">Codex Image Generation Field Manual</p>
+      <h1>สร้างภาพให้เกินคำว่า สวย</h1>
+      <p>คู่มือใช้งาน Codex เพื่อกำกับภาพอย่างมีชั้นเชิง ตั้งแต่การวาง brief, เขียน prompt, ใช้ภาพอ้างอิง, ตรวจผลลัพธ์ และ iterate จนได้ asset ที่ใช้ในงานจริงได้</p>
+      <nav class="hero-actions" aria-label="ทางลัด">
+        <a class="button primary" href="#formula">เริ่มจากสูตร prompt</a>
+        <a class="button" href="#examples">ดูตัวอย่างพร้อมคัดลอก</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="shell">
+    <div class="layout">
+      <aside class="toc" aria-label="สารบัญ">
+        <strong>สารบัญ</strong>
+        <a href="#mindset">วิธีคิด</a>
+        <a href="#formula">สูตร prompt</a>
+        <a href="#usecases">เลือก use case</a>
+        <a href="#workflow">workflow 3 รอบ</a>
+        <a href="#examples">prompt พร้อมใช้</a>
+        <a href="#reference">ภาพอ้างอิง</a>
+        <a href="#repair">คำสั่งแก้ภาพ</a>
+        <a href="#quality">เช็กคุณภาพ</a>
+      </aside>
+
+      <main id="content">
+        <section id="mindset">
+          <div class="section-head">
+            <p class="eyebrow">01 / Mindset</p>
+            <h2>คุยกับ Codex เหมือนผู้กำกับภาพ</h2>
+            <p class="lead">อย่าขอแค่ “รูปสวย ๆ” ให้บอกว่าภาพนี้ต้องทำหน้าที่อะไร ใครจะดู เห็นแล้วควรรู้สึกอย่างไร และอะไรคือสิ่งที่ห้ามพลาด</p>
+          </div>
+
+          <div class="principle-grid">
+            <article class="principle">
+              <span class="number">1</span>
+              <h3>เริ่มจากหน้าที่ของภาพ</h3>
+              <span>Hero image ต้องมีพื้นที่ว่างสำหรับข้อความ ส่วน product mockup ต้องชัดเรื่องทรง วัสดุ และฉลาก งานแต่ละชนิดต้องกำกับคนละแบบ</span>
+            </article>
+            <article class="principle">
+              <span class="number">2</span>
+              <h3>ใส่ action ให้ subject</h3>
+              <span>“barista preparing pour-over coffee” มีชีวิตกว่า “barista in cafe” เพราะภาพรู้ว่าต้องจับช่วงเวลาไหน</span>
+            </article>
+            <article class="principle">
+              <span class="number">3</span>
+              <h3>ใช้ภาษากล้องและพื้นที่</h3>
+              <span>คำอย่าง wide crop, close-up, top-down, negative space, shallow depth of field ช่วยล็อก composition ได้มากขึ้น</span>
+            </article>
+            <article class="principle">
+              <span class="number">4</span>
+              <h3>ข้อห้ามคือเครื่องมือควบคุม</h3>
+              <span>ใส่ no logos, no watermark, no readable brand names, no extra text แทบทุกครั้งเมื่อต้องนำภาพไปใช้งานจริง</span>
+            </article>
+          </div>
+        </section>
+
+        <section id="formula">
+          <div class="section-head">
+            <p class="eyebrow">02 / Prompt Grammar</p>
+            <h2>สูตรหลักที่ควรจำ</h2>
+            <p class="lead">ใช้โครงนี้เป็น default brief แล้วตัดบรรทัดที่ไม่จำเป็นออก อย่าเติมรายละเอียดมั่ว ให้เติมเฉพาะสิ่งที่ทำให้ภาพสำเร็จจริง</p>
+          </div>
+
+          <div class="formula">
+            <div class="code-panel">
+              <div class="code-bar">
+                <span>Master Prompt Template</span>
+                <button class="copy-button" type="button" data-copy="template">Copy</button>
+              </div>
+              <pre id="template"><code>$imagegen
+Use case: &lt;photorealistic-natural / product-mockup / ui-mockup / infographic-diagram / logo-brand / illustration-story&gt;
+Asset type: &lt;ภาพนี้ใช้ที่ไหน เช่น website hero, poster, thumbnail, game asset&gt;
+Primary request: &lt;ภาพหลักที่ต้องการ&gt;
+Scene/backdrop: &lt;ฉาก สถานที่ หรือบริบท&gt;
+Subject: &lt;ตัวเอก วัตถุหลัก และ action&gt;
+Style/medium: &lt;photorealistic editorial photography, 3D render, watercolor, vector-like&gt;
+Composition/framing: &lt;มุมกล้อง ระยะภาพ การวางตำแหน่ง พื้นที่ว่าง&gt;
+Lighting/mood: &lt;แสง เวลา อารมณ์&gt;
+Color palette: &lt;โทนสีหลักและสีที่ควรเลี่ยง&gt;
+Materials/textures: &lt;ผิววัสดุ รายละเอียดจริงที่อยากเห็น&gt;
+Text (verbatim): "&lt;ข้อความเป๊ะ ๆ ถ้ามี&gt;"
+Constraints: &lt;สิ่งที่ต้องมีหรือห้ามเปลี่ยน&gt;
+Avoid: &lt;สิ่งที่ไม่ต้องการ เช่น watermark, logos, extra text, fake glossy AI look&gt;</code></pre>
+            </div>
+
+            <div class="callout">
+              <h3>ประโยคที่ทรงพลังที่สุด</h3>
+              <p><code>Change only &lt;สิ่งที่ต้องแก้&gt;; keep &lt;สิ่งที่ดีอยู่แล้ว&gt; unchanged.</code></p>
+              <p>ใช้ทุกครั้งเวลาแก้ภาพเดิม เพราะมันลด drift และทำให้ Codex รู้ว่าต้องรักษาอะไรไว้</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="usecases">
+          <div class="section-head">
+            <p class="eyebrow">03 / Use Case Map</p>
+            <h2>เลือกชนิดงานก่อนเลือกคำสวย</h2>
+            <p class="lead">Use case ทำให้ระบบเข้าใจมาตรฐานของภาพ เช่น ภาพถ่ายต้องสมจริง โลโก้ต้อง silhouette แข็งแรง อินโฟกราฟิกต้องอ่านง่าย</p>
+          </div>
+
+          <div class="usecase-grid">
+            <article class="usecase">
+              <strong>photorealistic-natural</strong>
+              <span>ภาพถ่าย lifestyle, candid, editorial ใช้ภาษากล้อง แสงจริง texture จริง และความไม่ perfect แบบมนุษย์</span>
+            </article>
+            <article class="usecase">
+              <strong>product-mockup</strong>
+              <span>ภาพสินค้า แพ็กเกจจิ้ง catalog shot ต้องชัดเรื่องวัสดุ เงา ฉลาก และ silhouette</span>
+            </article>
+            <article class="usecase">
+              <strong>ui-mockup</strong>
+              <span>หน้าจอแอปหรือเว็บ ระบุ fidelity, layout, hierarchy และบอกว่าไม่ใช่ concept art</span>
+            </article>
+            <article class="usecase">
+              <strong>infographic-diagram</strong>
+              <span>ภาพอธิบาย มี flow, labels, arrows และ text verbatim ที่ต้องตรวจทุกคำหลังสร้าง</span>
+            </article>
+            <article class="usecase">
+              <strong>logo-brand</strong>
+              <span>สำรวจแนวคิดโลโก้ เน้นเรียบ คม silhouette ดี ใช้เป็น concept ก่อนทำไฟล์ vector จริง</span>
+            </article>
+            <article class="usecase">
+              <strong>illustration-story</strong>
+              <span>ภาพเล่าเรื่อง comic, children's book, narrative scene ต้องระบุ action และ scene beat ให้ชัด</span>
+            </article>
+          </div>
+        </section>
+
+        <section id="workflow">
+          <div class="section-head">
+            <p class="eyebrow">04 / Iteration</p>
+            <h2>ทำเป็น 3 รอบ ไม่ใช่หวังจบรอบเดียว</h2>
+            <p class="lead">ภาพที่ดีมักเกิดจากการล็อกสิ่งที่ถูกแล้วแก้สิ่งที่ยังไม่ใช่ทีละเรื่อง</p>
+          </div>
+
+          <div class="workflow">
+            <article class="step">
+              <div class="step-label">Round 1</div>
+              <div>
+                <h3>สร้าง direction</h3>
+                <p>เริ่มจาก brief ที่ชัดแต่ไม่แน่นเกินไป เพื่อดู mood, composition, subject และความรู้สึกโดยรวม</p>
+              </div>
+            </article>
+            <article class="step">
+              <div class="step-label">Round 2</div>
+              <div>
+                <h3>ล็อกสิ่งที่ดี</h3>
+                <p>บอกให้เก็บ composition, subject, pose, lighting direction หรือ texture ที่ชอบไว้ แล้วแก้เพียงหนึ่งอย่าง</p>
+              </div>
+            </article>
+            <article class="step">
+              <div class="step-label">Round 3</div>
+              <div>
+                <h3>ทำ production pass</h3>
+                <p>ตรวจ no watermark, no logo, no extra text, readable labels, negative space, edge quality และความเหมาะกับพื้นที่ที่จะนำไปใช้</p>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section id="examples">
+          <div class="section-head">
+            <p class="eyebrow">05 / Ready Prompts</p>
+            <h2>ตัวอย่างพร้อมคัดลอก</h2>
+            <p class="lead">เริ่มจากตัวอย่างเหล่านี้ แล้วแทน subject, สถานที่, โทน และข้อจำกัดให้ตรงกับงานของคุณ</p>
+          </div>
+
+          <div class="code-panel">
+            <div class="code-bar">
+              <span>Website Hero Image</span>
+              <button class="copy-button" type="button" data-copy="hero-prompt">Copy</button>
+            </div>
+            <pre id="hero-prompt"><code>$imagegen
+Use case: photorealistic-natural
+Asset type: website hero image
+Primary request: cozy independent coffee shop in Bangkok during early morning
+Scene/backdrop: small warm cafe interior with soft street light through glass windows
+Subject: barista preparing pour-over coffee, natural candid moment
+Style/medium: photorealistic editorial photography
+Composition/framing: wide horizontal crop, subject on the left, clean negative space on the right for website headline
+Lighting/mood: soft morning light, warm but realistic, gentle shadows
+Color palette: warm wood, muted green plants, cream walls, black coffee equipment
+Materials/textures: real wood grain, ceramic cup, glass dripper, metal kettle, worn apron fabric
+Constraints: no logos, no readable brand names, no watermark, no extra text
+Avoid: overly staged advertising look, fake glossy AI look</code></pre>
+          </div>
+
+          <div class="code-panel">
+            <div class="code-bar">
+              <span>Product Mockup</span>
+              <button class="copy-button" type="button" data-copy="product-prompt">Copy</button>
+            </div>
+            <pre id="product-prompt"><code>$imagegen
+Use case: product-mockup
+Asset type: landing page product image
+Primary request: premium product photo of a small matte ceramic coffee dripper
+Scene/backdrop: clean studio surface with subtle warm neutral background
+Subject: single ceramic dripper at a slight three-quarter angle
+Style/medium: refined product photography
+Composition/framing: centered product with generous padding for crop flexibility
+Lighting/mood: softbox lighting, controlled highlights, natural shadow
+Color palette: off-white ceramic, warm neutral surface, deep green accent leaf
+Materials/textures: matte ceramic texture, subtle glaze variation, soft paper filter
+Constraints: crisp silhouette, no logos, no text, no watermark
+Avoid: plastic look, heavy reflection, decorative clutter</code></pre>
+          </div>
+
+          <div class="code-panel">
+            <div class="code-bar">
+              <span>Infographic Draft</span>
+              <button class="copy-button" type="button" data-copy="info-prompt">Copy</button>
+            </div>
+            <pre id="info-prompt"><code>$imagegen
+Use case: infographic-diagram
+Asset type: educational poster draft
+Primary request: clear infographic explaining pour-over coffee flow
+Scene/backdrop: clean light background
+Subject: kettle, filter, coffee bed, dripper, server, cup, with arrows showing flow
+Style/medium: clean vector-like infographic, readable labels
+Composition/framing: vertical poster layout, top-to-bottom process
+Text (verbatim): "Kettle", "Water Flow", "Coffee Bed", "Dripper", "Server", "Cup"
+Constraints: sharp text, concise labels, clear arrows, no logos, no watermark, no extra text
+Avoid: tiny labels, decorative clutter, unrealistic coffee equipment</code></pre>
+          </div>
+        </section>
+
+        <section id="reference">
+          <div class="section-head">
+            <p class="eyebrow">06 / References</p>
+            <h2>ใช้ภาพอ้างอิงแบบระบุหน้าที่</h2>
+            <p class="lead">อย่าแนบรูปแล้วหวังให้ Codex เดาเอง ให้บอกว่าแต่ละภาพควรถูกใช้เพื่ออะไร</p>
+          </div>
+
+          <div class="code-panel">
+            <div class="code-bar">
+              <span>Multi-reference Prompt</span>
+              <button class="copy-button" type="button" data-copy="reference-prompt">Copy</button>
+            </div>
+            <pre id="reference-prompt"><code>$imagegen
+Input images:
+Image 1: identity reference for the person only
+Image 2: lighting and color grading reference
+Image 3: composition reference
+
+Primary request: create a new image using the same person from Image 1 in a new cafe scene
+Use Image 1 only for facial identity, hair, and body proportions.
+Use Image 2 only for morning light and warm color grading.
+Use Image 3 only for wide hero framing and negative space.
+Constraints: do not copy background details from the reference images; preserve identity; no logos; no watermark; no extra text</code></pre>
+          </div>
+        </section>
+
+        <section id="repair">
+          <div class="section-head">
+            <p class="eyebrow">07 / Repair Language</p>
+            <h2>คำสั่งแก้ภาพที่ใช้บ่อย</h2>
+            <p class="lead">การแก้ภาพที่ดีต้องสั้น ชัด และล็อก invariant ทุกครั้ง</p>
+          </div>
+
+          <div class="repair-grid">
+            <article class="repair">
+              <strong>ลดความจัดฉาก</strong>
+              <span>Make it more natural and less staged. Keep the same framing and subject.</span>
+            </article>
+            <article class="repair">
+              <strong>เพิ่มพื้นที่วางข้อความ</strong>
+              <span>Increase usable negative space on the right. Do not move the subject away from the main action.</span>
+            </article>
+            <article class="repair">
+              <strong>แก้เฉพาะแสง</strong>
+              <span>Keep the same person, pose, equipment, and camera angle. Change only the lighting to softer morning light.</span>
+            </article>
+            <article class="repair">
+              <strong>เอาตัวหนังสือมั่วออก</strong>
+              <span>Remove any readable text or brand marks. Keep the atmosphere and composition unchanged.</span>
+            </article>
+            <article class="repair">
+              <strong>ทำ background ให้นิ่งขึ้น</strong>
+              <span>Make the background simpler and less distracting while preserving the place and mood.</span>
+            </article>
+            <article class="repair">
+              <strong>รักษาคนเดิม</strong>
+              <span>Preserve the same face, hair, body proportions, pose, and expression. Change only the requested clothing.</span>
+            </article>
+          </div>
+        </section>
+
+        <section id="quality">
+          <div class="section-head">
+            <p class="eyebrow">08 / Quality Gate</p>
+            <h2>เช็กก่อนเรียกว่างานเสร็จ</h2>
+            <p class="lead">ใช้ checklist นี้ทุกครั้งก่อนนำภาพไปวางในเว็บ โพสต์ โฆษณา หรือ deck</p>
+          </div>
+
+          <ul class="checklist">
+            <li>ภาพนี้ใช้ทำอะไรชัดไหม เช่น hero, poster, thumbnail, product shot</li>
+            <li>subject และ action อ่านออกภายในไม่กี่วินาทีไหม</li>
+            <li>composition มีพื้นที่พอสำหรับข้อความหรือ UI ที่จะวางทับไหม</li>
+            <li>แสงดูสมจริงและไปทางเดียวกับอารมณ์ที่ต้องการไหม</li>
+            <li>มีโลโก้ ตัวหนังสือมั่ว watermark หรือ brand mark ที่ไม่ควรมีไหม</li>
+            <li>texture ของวัสดุดูจับต้องได้ไหม เช่น ผ้า ไม้ เซรามิก โลหะ กระจก</li>
+            <li>ถ้าเป็นงาน edit ได้บอกชัดไหมว่าอะไรห้ามเปลี่ยน</li>
+            <li>ถ้ามี text ในภาพ สะกดถูกทุกตัวและไม่มีข้อความเกินมาหรือไม่</li>
+          </ul>
+
+          <div class="section-head" style="margin-top: var(--space-12);">
+            <p class="eyebrow">09 / Common Problems</p>
+            <h2>เมื่อภาพยังไม่ใช่ ให้แก้แบบนี้</h2>
+          </div>
+
+          <details>
+            <summary>ภาพดูเหมือน stock photo เกินไป</summary>
+            <div>เพิ่มคำว่า natural candid moment, imperfect everyday detail, less staged และใส่รายละเอียด texture จริง เช่น worn fabric, uneven wood grain, soft dust in morning light</div>
+          </details>
+          <details>
+            <summary>ภาพสวยแต่ใช้วางข้อความไม่ได้</summary>
+            <div>สั่งเพิ่ม negative space ตามด้านที่ต้องการ เช่น clean negative space on the right for headline แล้วระบุว่าอย่าย้าย subject ออกจาก action หลัก</div>
+          </details>
+          <details>
+            <summary>มีตัวหนังสือหรือโลโก้แปลก ๆ</summary>
+            <div>ใส่ constraints ให้หนักขึ้น: no readable brand names, no signage, no labels, no extra text, no watermark แล้ว iterate เฉพาะการลบข้อความ</div>
+          </details>
+          <details>
+            <summary>แก้ภาพแล้ว subject เปลี่ยนไป</summary>
+            <div>ใช้ invariant ก่อนคำสั่งแก้: keep the same person, pose, camera angle, composition, and main objects unchanged. Change only...</div>
+          </details>
+        </section>
+      </main>
+    </div>
+
+    <footer class="footer">
+      <p>ไฟล์นี้ออกแบบให้เปิดจากเครื่องได้โดยตรง ถ้าจะใช้ในโปรเจกต์เว็บ ให้วางไฟล์ HTML และโฟลเดอร์ asset ไว้คู่กัน</p>
+    </footer>
+  </div>
+
+  <script>
+    const copyButtons = document.querySelectorAll("[data-copy]");
+
+    async function copyText(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        return;
+      }
+
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.setAttribute("readonly", "");
+      textarea.style.position = "fixed";
+      textarea.style.left = "-9999px";
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand("copy");
+      textarea.remove();
+    }
+
+    copyButtons.forEach((button) => {
+      button.addEventListener("click", async () => {
+        const target = document.getElementById(button.dataset.copy);
+        if (!target) return;
+
+        const original = button.textContent;
+        try {
+          await copyText(target.innerText.trim());
+          button.textContent = "Copied";
+          window.setTimeout(() => {
+            button.textContent = original;
+          }, 1400);
+        } catch {
+          button.textContent = "Select text";
+          window.setTimeout(() => {
+            button.textContent = original;
+          }, 1800);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
