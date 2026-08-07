@@ -5,6 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>คู่มือใช้ Codex สร้างภาพอย่างแยบยล</title>
   <meta name="description" content="คู่มือภาษาไทยสำหรับใช้ Codex image generation ให้ได้ภาพที่ลึกซึ้ง ควบคุมได้ และพร้อมใช้งานจริง">
+  <link rel="canonical" href="https://tayakorn221.github.io/codex-imagegen-guide/">
+  <meta name="theme-color" content="#f5f0e5">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="คู่มือใช้ Codex สร้างภาพอย่างแยบยล">
+  <meta property="og:description" content="คู่มือภาษาไทยสำหรับกำกับภาพด้วย Codex: prompt, references, iteration, quality gate และตัวอย่างพร้อมใช้">
+  <meta property="og:url" content="https://tayakorn221.github.io/codex-imagegen-guide/">
+  <meta property="og:image" content="https://tayakorn221.github.io/codex-imagegen-guide/codex-imagegen-guide-assets/social-card.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="คู่มือใช้ Codex สร้างภาพอย่างแยบยล">
+  <meta name="twitter:description" content="เรียนรู้การใช้ Codex สร้างภาพให้คม ลึก และพร้อมใช้งานจริง">
+  <meta name="twitter:image" content="https://tayakorn221.github.io/codex-imagegen-guide/codex-imagegen-guide-assets/social-card.jpg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800;900&family=Noto+Serif+Thai:wght@700;800&display=swap" rel="stylesheet">
@@ -99,7 +112,7 @@
       position: absolute;
       inset: 0;
       z-index: -2;
-      background-image: url("codex-imagegen-guide-assets/coffee-hero.png");
+      background-image: url("codex-imagegen-guide-assets/coffee-hero-960.webp");
       background-size: cover;
       background-position: center;
       filter: saturate(0.96) contrast(1.03);
@@ -391,7 +404,7 @@
     }
 
     .copy-button {
-      min-height: 2.4rem;
+      min-height: 2.75rem;
       padding: 0.48rem 0.72rem;
       border: 1px solid color-mix(in oklch, var(--paper-strong) 34%, transparent);
       border-radius: var(--radius);
@@ -554,6 +567,10 @@
         padding-right: var(--space-8);
       }
 
+      .hero::before {
+        background-image: url("codex-imagegen-guide-assets/coffee-hero-1440.webp");
+      }
+
       .principle-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
@@ -579,6 +596,12 @@
       .toc {
         position: sticky;
         top: var(--space-6);
+      }
+    }
+
+    @media (min-width: 1280px) {
+      .hero::before {
+        background-image: url("codex-imagegen-guide-assets/coffee-hero-1774.webp");
       }
     }
 
@@ -698,7 +721,7 @@
             <div class="code-panel">
               <div class="code-bar">
                 <span>Master Prompt Template</span>
-                <button class="copy-button" type="button" data-copy="template">Copy</button>
+                <button class="copy-button" type="button" data-copy="template" aria-label="Copy master prompt template">Copy</button>
               </div>
               <pre id="template"><code>$imagegen
 Use case: &lt;photorealistic-natural / product-mockup / ui-mockup / infographic-diagram / logo-brand / illustration-story&gt;
@@ -871,7 +894,7 @@ Avoid: &lt;สิ่งที่ไม่ต้องการ เช่น wate
           <div class="code-panel">
             <div class="code-bar">
               <span>Website Hero Image</span>
-              <button class="copy-button" type="button" data-copy="hero-prompt">Copy</button>
+              <button class="copy-button" type="button" data-copy="hero-prompt" aria-label="Copy website hero prompt">Copy</button>
             </div>
             <pre id="hero-prompt"><code>$imagegen
 Use case: photorealistic-natural
@@ -891,7 +914,7 @@ Avoid: overly staged advertising look, fake glossy AI look</code></pre>
           <div class="code-panel">
             <div class="code-bar">
               <span>Product Mockup</span>
-              <button class="copy-button" type="button" data-copy="product-prompt">Copy</button>
+              <button class="copy-button" type="button" data-copy="product-prompt" aria-label="Copy product mockup prompt">Copy</button>
             </div>
             <pre id="product-prompt"><code>$imagegen
 Use case: product-mockup
@@ -911,7 +934,7 @@ Avoid: plastic look, heavy reflection, decorative clutter</code></pre>
           <div class="code-panel">
             <div class="code-bar">
               <span>Infographic Draft</span>
-              <button class="copy-button" type="button" data-copy="info-prompt">Copy</button>
+              <button class="copy-button" type="button" data-copy="info-prompt" aria-label="Copy infographic draft prompt">Copy</button>
             </div>
             <pre id="info-prompt"><code>$imagegen
 Use case: infographic-diagram
@@ -929,7 +952,7 @@ Avoid: tiny labels, decorative clutter, unrealistic coffee equipment</code></pre
           <div class="code-panel">
             <div class="code-bar">
               <span>Character Consistency</span>
-              <button class="copy-button" type="button" data-copy="character-prompt">Copy</button>
+              <button class="copy-button" type="button" data-copy="character-prompt" aria-label="Copy character consistency prompt">Copy</button>
             </div>
             <pre id="character-prompt"><code>$imagegen
 Use case: identity-preserve
@@ -946,7 +969,7 @@ Avoid: redesigning the character, changing age, adding unrelated companions</cod
           <div class="code-panel">
             <div class="code-bar">
               <span>Transparent Asset Draft</span>
-              <button class="copy-button" type="button" data-copy="transparent-prompt">Copy</button>
+              <button class="copy-button" type="button" data-copy="transparent-prompt" aria-label="Copy transparent asset draft prompt">Copy</button>
             </div>
             <pre id="transparent-prompt"><code>$imagegen
 Use case: background-extraction
@@ -975,7 +998,7 @@ Avoid: glass, translucent steam, smoke, soft contact shadow, busy props</code></
           <div class="code-panel">
             <div class="code-bar">
               <span>Multi-reference Prompt</span>
-              <button class="copy-button" type="button" data-copy="reference-prompt">Copy</button>
+              <button class="copy-button" type="button" data-copy="reference-prompt" aria-label="Copy multi-reference prompt">Copy</button>
             </div>
             <pre id="reference-prompt"><code>$imagegen
 Input images:
