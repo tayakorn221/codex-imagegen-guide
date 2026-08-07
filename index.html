@@ -5,9 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>คู่มือใช้ Codex สร้างภาพอย่างแยบยล</title>
   <meta name="description" content="คู่มือภาษาไทยสำหรับใช้ Codex image generation ให้ได้ภาพที่ลึกซึ้ง ควบคุมได้ และพร้อมใช้งานจริง">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800;900&family=Noto+Serif+Thai:wght@700;800&display=swap" rel="stylesheet">
   <style>
     :root {
       color-scheme: light;
+      --font-body: "Noto Sans Thai", "Leelawadee UI", "Segoe UI", Tahoma, sans-serif;
+      --font-display: "Noto Serif Thai", "Noto Sans Thai", "Leelawadee UI", serif;
+      --font-code: "Cascadia Mono", "Consolas", "Noto Sans Mono", monospace;
       --ink: oklch(18% 0.024 72);
       --ink-soft: oklch(35% 0.03 74);
       --muted: oklch(49% 0.035 83);
@@ -45,7 +51,7 @@
 
     body {
       margin: 0;
-      font-family: "Noto Sans Thai", "Leelawadee UI", "Segoe UI", Tahoma, sans-serif;
+      font-family: var(--font-body);
       font-size: 1rem;
       line-height: 1.72;
       color: var(--ink);
@@ -134,9 +140,15 @@
       letter-spacing: 0;
     }
 
+    h1,
+    h2 {
+      font-family: var(--font-display);
+    }
+
     h1 {
       max-width: 13ch;
       font-size: 3.25rem;
+      font-weight: 800;
     }
 
     .hero p {
@@ -404,7 +416,7 @@
       white-space: pre-wrap;
       overflow-wrap: anywhere;
       color: oklch(93% 0.018 85);
-      font-family: "Cascadia Mono", "Consolas", "Noto Sans Mono", monospace;
+      font-family: var(--font-code);
       font-size: 0.92rem;
       line-height: 1.62;
       tab-size: 2;
@@ -416,7 +428,7 @@
     }
 
     code {
-      font-family: "Cascadia Mono", "Consolas", "Noto Sans Mono", monospace;
+      font-family: var(--font-code);
       font-variant-ligatures: none;
     }
 
