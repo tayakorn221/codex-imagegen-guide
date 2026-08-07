@@ -275,6 +275,8 @@
 
     .principle-grid,
     .usecase-grid,
+    .mode-grid,
+    .glossary-grid,
     .repair-grid {
       display: grid;
       gap: var(--space-4);
@@ -282,6 +284,8 @@
 
     .principle,
     .usecase,
+    .mode,
+    .glossary,
     .repair {
       padding: var(--space-5, 1.25rem);
       border-radius: var(--radius);
@@ -312,7 +316,24 @@
       background: color-mix(in oklch, var(--blueprint-soft) 48%, var(--paper-strong));
     }
 
+    .mode {
+      border-color: color-mix(in oklch, var(--leaf) 25%, var(--line));
+      background: color-mix(in oklch, var(--leaf-soft) 45%, var(--paper-strong));
+    }
+
+    .glossary {
+      display: grid;
+      gap: var(--space-2);
+    }
+
+    .glossary code {
+      color: var(--blueprint);
+      font-weight: 850;
+    }
+
     .usecase strong,
+    .mode strong,
+    .glossary strong,
     .repair strong {
       display: block;
       margin-bottom: var(--space-2);
@@ -320,6 +341,8 @@
     }
 
     .usecase span,
+    .mode span,
+    .glossary span,
     .repair span,
     .principle span {
       color: var(--ink-soft);
@@ -385,6 +408,11 @@
       font-size: 0.92rem;
       line-height: 1.62;
       tab-size: 2;
+    }
+
+    .code-panel + .code-panel,
+    .callout + .code-panel {
+      margin-top: var(--space-4);
     }
 
     code {
@@ -519,6 +547,8 @@
       }
 
       .usecase-grid,
+      .mode-grid,
+      .glossary-grid,
       .repair-grid {
         grid-template-columns: repeat(3, minmax(0, 1fr));
       }
@@ -603,7 +633,9 @@
         <strong>สารบัญ</strong>
         <a href="#mindset">วิธีคิด</a>
         <a href="#formula">สูตร prompt</a>
+        <a href="#modes">สร้างใหม่ vs แก้เดิม</a>
         <a href="#usecases">เลือก use case</a>
+        <a href="#glossary">ศัพท์ที่ต้องรู้</a>
         <a href="#workflow">workflow 3 รอบ</a>
         <a href="#examples">prompt พร้อมใช้</a>
         <a href="#reference">ภาพอ้างอิง</a>
@@ -638,7 +670,7 @@
             <article class="principle">
               <span class="number">4</span>
               <h3>ข้อห้ามคือเครื่องมือควบคุม</h3>
-              <span>ใส่ no logos, no watermark, no readable brand names, no extra text แทบทุกครั้งเมื่อต้องนำภาพไปใช้งานจริง</span>
+              <span>ใช้ no logos, no watermark และ no extra text เป็นค่าเริ่มต้นเมื่อไม่ต้องการข้อความหรือแบรนด์ ยกเว้นงานที่ตั้งใจทำโลโก้ ป้าย หรือข้อความในภาพ</span>
             </article>
           </div>
         </section>
@@ -669,7 +701,7 @@ Color palette: &lt;โทนสีหลักและสีที่ควร�
 Materials/textures: &lt;ผิววัสดุ รายละเอียดจริงที่อยากเห็น&gt;
 Text (verbatim): "&lt;ข้อความเป๊ะ ๆ ถ้ามี&gt;"
 Constraints: &lt;สิ่งที่ต้องมีหรือห้ามเปลี่ยน&gt;
-Avoid: &lt;สิ่งที่ไม่ต้องการ เช่น watermark, logos, extra text, fake glossy AI look&gt;</code></pre>
+Avoid: &lt;สิ่งที่ไม่ต้องการ เช่น watermark, logos, extra text unless intentionally requested, fake glossy AI look&gt;</code></pre>
             </div>
 
             <div class="callout">
@@ -680,9 +712,32 @@ Avoid: &lt;สิ่งที่ไม่ต้องการ เช่น wate
           </div>
         </section>
 
+        <section id="modes">
+          <div class="section-head">
+            <p class="eyebrow">03 / Generate vs Edit</p>
+            <h2>สร้างใหม่กับแก้เดิม ใช้สมองคนละแบบ</h2>
+            <p class="lead">ก่อนเขียน prompt ให้ตัดสินใจก่อนว่าคุณกำลังสร้างภาพใหม่ หรือกำลังแก้ภาพที่มีอยู่ เพราะสิ่งที่ต้องควบคุมไม่เหมือนกัน</p>
+          </div>
+
+          <div class="mode-grid">
+            <article class="mode">
+              <strong>Generate</strong>
+              <span>ใช้เมื่อเริ่มจากศูนย์หรือใช้รูปเป็นแรงบันดาลใจ ระบุ purpose, subject, scene, style, composition และข้อห้ามให้ชัด</span>
+            </article>
+            <article class="mode">
+              <strong>Edit</strong>
+              <span>ใช้เมื่อมีภาพตั้งต้นและต้องรักษาบางส่วนไว้ ระบุว่า change only อะไร และ keep อะไร unchanged ทุกครั้งที่ iterate</span>
+            </article>
+            <article class="mode">
+              <strong>Reference</strong>
+              <span>ใช้เมื่อรูปที่แนบไม่ได้เป็นภาพให้แก้ แต่เป็นตัวอย่าง identity, lighting, mood, layout หรือ texture ต้องบอกบทบาทของแต่ละรูป</span>
+            </article>
+          </div>
+        </section>
+
         <section id="usecases">
           <div class="section-head">
-            <p class="eyebrow">03 / Use Case Map</p>
+            <p class="eyebrow">04 / Use Case Map</p>
             <h2>เลือกชนิดงานก่อนเลือกคำสวย</h2>
             <p class="lead">Use case ทำให้ระบบเข้าใจมาตรฐานของภาพ เช่น ภาพถ่ายต้องสมจริง โลโก้ต้อง silhouette แข็งแรง อินโฟกราฟิกต้องอ่านง่าย</p>
           </div>
@@ -715,9 +770,56 @@ Avoid: &lt;สิ่งที่ไม่ต้องการ เช่น wate
           </div>
         </section>
 
+        <section id="glossary">
+          <div class="section-head">
+            <p class="eyebrow">05 / Glossary</p>
+            <h2>ศัพท์ที่ต้องรู้ก่อนสั่งภาพ</h2>
+            <p class="lead">คำเหล่านี้ช่วยให้คุณคุยกับ Codex แม่นขึ้น ถ้ารู้ความหมาย คุณจะควบคุมภาพได้ละเอียดกว่าเดิม</p>
+          </div>
+
+          <div class="glossary-grid">
+            <article class="glossary">
+              <strong><code>brief</code></strong>
+              <span>โจทย์ย่อของภาพ บอกเป้าหมาย ผู้ชม บริบท และข้อจำกัด</span>
+            </article>
+            <article class="glossary">
+              <strong><code>asset</code></strong>
+              <span>ไฟล์ภาพที่นำไปใช้จริง เช่น hero, thumbnail, icon, poster หรือ slide visual</span>
+            </article>
+            <article class="glossary">
+              <strong><code>iterate</code></strong>
+              <span>แก้เป็นรอบ ๆ โดยล็อกสิ่งที่ดี แล้วเปลี่ยนทีละเรื่อง</span>
+            </article>
+            <article class="glossary">
+              <strong><code>negative space</code></strong>
+              <span>พื้นที่ว่างในภาพที่ใช้วาง headline, ปุ่ม หรือ UI โดยไม่ชน subject หลัก</span>
+            </article>
+            <article class="glossary">
+              <strong><code>invariant</code></strong>
+              <span>สิ่งที่ห้ามเปลี่ยนตอนแก้ภาพ เช่น หน้าเดิม pose เดิม camera angle เดิม</span>
+            </article>
+            <article class="glossary">
+              <strong><code>silhouette</code></strong>
+              <span>รูปทรงรวมของวัตถุ ถ้า silhouette แข็งแรง คนจะจำ subject ได้แม้เห็นเป็นเงาดำ</span>
+            </article>
+            <article class="glossary">
+              <strong><code>fidelity</code></strong>
+              <span>ระดับความสมจริงหรือความละเอียดของ mockup เช่น low-fi wireframe หรือ shippable UI</span>
+            </article>
+            <article class="glossary">
+              <strong><code>color grading</code></strong>
+              <span>การปรับโทนสีรวมของภาพให้มี mood เดียวกัน เช่น อุ่น นิ่ง สด หรือ cinematic</span>
+            </article>
+            <article class="glossary">
+              <strong><code>verbatim</code></strong>
+              <span>ข้อความที่ต้องแสดงตรงตัวทุกตัวอักษร เหมาะกับป้าย tagline และ label ใน infographic</span>
+            </article>
+          </div>
+        </section>
+
         <section id="workflow">
           <div class="section-head">
-            <p class="eyebrow">04 / Iteration</p>
+            <p class="eyebrow">06 / Iteration</p>
             <h2>ทำเป็น 3 รอบ ไม่ใช่หวังจบรอบเดียว</h2>
             <p class="lead">ภาพที่ดีมักเกิดจากการล็อกสิ่งที่ถูกแล้วแก้สิ่งที่ยังไม่ใช่ทีละเรื่อง</p>
           </div>
@@ -749,9 +851,9 @@ Avoid: &lt;สิ่งที่ไม่ต้องการ เช่น wate
 
         <section id="examples">
           <div class="section-head">
-            <p class="eyebrow">05 / Ready Prompts</p>
+            <p class="eyebrow">07 / Ready Prompts</p>
             <h2>ตัวอย่างพร้อมคัดลอก</h2>
-            <p class="lead">เริ่มจากตัวอย่างเหล่านี้ แล้วแทน subject, สถานที่, โทน และข้อจำกัดให้ตรงกับงานของคุณ</p>
+            <p class="lead">เริ่มจากตัวอย่างเหล่านี้ แล้วแทน subject, สถานที่, โทน และข้อจำกัดให้ตรงกับงานของคุณ ตัวอย่างตั้งใจให้หลากหลายกว่างานกาแฟอย่างเดียว</p>
           </div>
 
           <div class="code-panel">
@@ -811,13 +913,51 @@ Text (verbatim): "Kettle", "Water Flow", "Coffee Bed", "Dripper", "Server", "Cup
 Constraints: sharp text, concise labels, clear arrows, no logos, no watermark, no extra text
 Avoid: tiny labels, decorative clutter, unrealistic coffee equipment</code></pre>
           </div>
+
+          <div class="code-panel">
+            <div class="code-bar">
+              <span>Character Consistency</span>
+              <button class="copy-button" type="button" data-copy="character-prompt">Copy</button>
+            </div>
+            <pre id="character-prompt"><code>$imagegen
+Use case: identity-preserve
+Input images: Image 1: character anchor reference
+Asset type: story scene illustration
+Primary request: same character from Image 1 reading a map beside a rainy train platform
+Scene/backdrop: quiet train platform at dusk, soft rain, practical travel details
+Style/medium: same illustration style as Image 1
+Composition/framing: medium-wide scene, character clearly visible, map held naturally
+Constraints: preserve the same face, hair, outfit, proportions, and personality; change only the scene and action; no text; no watermark
+Avoid: redesigning the character, changing age, adding unrelated companions</code></pre>
+          </div>
+
+          <div class="code-panel">
+            <div class="code-bar">
+              <span>Transparent Asset Draft</span>
+              <button class="copy-button" type="button" data-copy="transparent-prompt">Copy</button>
+            </div>
+            <pre id="transparent-prompt"><code>$imagegen
+Use case: background-extraction
+Asset type: transparent website sticker asset
+Primary request: single ceramic coffee cup sticker with simple opaque cream steam shapes
+Scene/backdrop: perfectly flat solid #00ff00 chroma-key background for background removal
+Subject: cup centered with generous padding and crisp silhouette
+Style/medium: clean semi-realistic sticker-style asset
+Constraints: background must be one uniform color; no shadows, gradients, floor plane, reflections, logos, watermark, or text; do not use #00ff00 anywhere in the cup
+Avoid: glass, translucent steam, smoke, soft contact shadow, busy props</code></pre>
+          </div>
         </section>
 
         <section id="reference">
           <div class="section-head">
-            <p class="eyebrow">06 / References</p>
+            <p class="eyebrow">08 / References</p>
             <h2>ใช้ภาพอ้างอิงแบบระบุหน้าที่</h2>
             <p class="lead">อย่าแนบรูปแล้วหวังให้ Codex เดาเอง ให้บอกว่าแต่ละภาพควรถูกใช้เพื่ออะไร</p>
+          </div>
+
+          <div class="callout">
+            <h3>ใช้ภาพบุคคลด้วยความระมัดระวัง</h3>
+            <p>ถ้าใช้รูปคนจริงเพื่อรักษา identity หรือ likeness ให้ใช้เฉพาะรูปที่คุณมีสิทธิ ใช้รูปของตัวเอง หรือได้รับอนุญาตจากเจ้าของภาพและบุคคลในภาพแล้ว</p>
           </div>
 
           <div class="code-panel">
@@ -841,7 +981,7 @@ Constraints: do not copy background details from the reference images; preserve 
 
         <section id="repair">
           <div class="section-head">
-            <p class="eyebrow">07 / Repair Language</p>
+            <p class="eyebrow">09 / Repair Language</p>
             <h2>คำสั่งแก้ภาพที่ใช้บ่อย</h2>
             <p class="lead">การแก้ภาพที่ดีต้องสั้น ชัด และล็อก invariant ทุกครั้ง</p>
           </div>
@@ -876,7 +1016,7 @@ Constraints: do not copy background details from the reference images; preserve 
 
         <section id="quality">
           <div class="section-head">
-            <p class="eyebrow">08 / Quality Gate</p>
+            <p class="eyebrow">10 / Quality Gate</p>
             <h2>เช็กก่อนเรียกว่างานเสร็จ</h2>
             <p class="lead">ใช้ checklist นี้ทุกครั้งก่อนนำภาพไปวางในเว็บ โพสต์ โฆษณา หรือ deck</p>
           </div>
@@ -893,7 +1033,7 @@ Constraints: do not copy background details from the reference images; preserve 
           </ul>
 
           <div class="section-head" style="margin-top: var(--space-12);">
-            <p class="eyebrow">09 / Common Problems</p>
+            <p class="eyebrow">11 / Common Problems</p>
             <h2>เมื่อภาพยังไม่ใช่ ให้แก้แบบนี้</h2>
           </div>
 
