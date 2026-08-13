@@ -1,29 +1,54 @@
-# Codex Image Generation Guide
+# สั่งภาพด้วย Codex — ฉบับเข้าใจถึงแก่น
 
-Thai field manual for using Codex image generation with better prompts, references, iteration, and quality checks.
+คู่มือภาษาไทยสำหรับกำกับภาพด้วย Codex image generation · 12 บท · 5 ระดับ · อ่านจบใน ~35 นาที
+เขียนเป็น handbook ที่มีกลไกแกนข้อเดียว ไม่ใช่คลังคำสวยให้ท่อง
 
 Live site: https://tayakorn221.github.io/codex-imagegen-guide/
 
-## What Is Inside
+ส่วนหนึ่งของ [Handbooks](https://tayakorn221.github.io/handbooks/) — เขียนเพื่อเข้าใจ ไม่ใช่เพื่อท่องจำ
 
-- Prompt structure for `$imagegen`
-- Generate vs edit decision guide
-- Use case map for photos, product mockups, UI mockups, infographics, logos, and story illustrations
-- Glossary for prompt-writing terms
-- Ready-to-copy prompt examples
-- Reference-image and identity-preservation guidance
-- Quality checklist before using generated images
+## กลไกแกนของเล่ม
+
+> ทุกช่องที่คุณเว้นว่างไว้ โมเดลไม่ได้เว้นว่างตาม — มันเติมด้วย "ค่ากลาง" ของสิ่งที่มันเคยเห็นมา
+
+ทุกบทคือคำตอบของคำถามเดียว: ช่องไหนคุ้มค่าจะปักหมุด และปักด้วยคำว่าอะไร
+
+## สารบัญ
+
+**Level 0 · ปูพื้น**
+1. ทำไม "ขอรูปสวย ๆ" ถึงได้ภาพที่ใช้งานไม่ได้ — กลไกค่ากลาง
+2. กายวิภาคของ brief — แผงหมุดทั้ง 13 ช่อง (พร้อมตัวอย่างภาพจริง + prompt ที่สร้างมัน)
+
+**Level 1 · ปักหมุดให้แม่น**
+3. คำที่มีน้ำหนักจริง — กล้อง แสง วัสดุ
+4. Use case — สวิตช์ที่เปลี่ยนค่ากลางทั้งชุด (8 ชนิดงาน)
+5. ภาพนี้ต้องไปอยู่ตรงไหน — คิดแบบคนทำ asset
+
+**Level 2 · แก้ให้ตรงจุด**
+6. Generate · Edit · Reference — สามโหมด สามสมอง
+7. Invariant — `Change only X; keep Y unchanged.`
+8. Iterate 3 รอบ — เปลี่ยนทีละตัวแปร
+
+**Level 3 · ด่านยาก**
+9. ตัวหนังสือในภาพ — ทำไมมันพัง และภาษาไทยทำยังไง
+10. ภาพอ้างอิงและ identity — บอกหน้าที่ของทุกรูป + เส้นที่ไม่ควรข้าม
+
+**Level 4 · ส่งงานจริง**
+11. วินิจฉัยจากอาการ — ตารางอาการ → รากของปัญหา → ประโยคที่ใช้แก้
+12. Quality gate 10 ข้อ & คลัง prompt พร้อมใช้
+
+**ภาคผนวก** — ศัพท์ที่ใช้ในเล่ม
 
 ## Files
 
-- `index.html` - Single-page guide with embedded CSS and JavaScript
-- `codex-imagegen-guide-assets/coffee-hero-*.webp` - Responsive hero images
-- `codex-imagegen-guide-assets/social-card.jpg` - Open Graph/Twitter preview image
+- `index.html` — คู่มือทั้งเล่มในไฟล์เดียว (CSS + JS ฝังในไฟล์ ไม่มี build step)
+- `codex-imagegen-guide-assets/coffee-hero-*.webp` — ภาพตัวอย่างประกอบบทที่ 2
+- `codex-imagegen-guide-assets/social-card.jpg` — ภาพ Open Graph / Twitter card
 
 ## Local Preview
 
-Open `index.html` directly in a browser. No build step or dev server is required.
+เปิด `index.html` ในเบราว์เซอร์ได้ตรง ๆ ไม่ต้อง build ไม่ต้องมี dev server
 
 ## Deployment
 
-GitHub Pages serves the `main` branch from `/`.
+GitHub Pages เสิร์ฟ branch `main` จาก `/`

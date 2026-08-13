@@ -1,922 +1,943 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>คู่มือใช้ Codex สร้างภาพอย่างแยบยล</title>
-  <meta name="description" content="คู่มือภาษาไทยสำหรับใช้ Codex image generation ให้ได้ภาพที่ลึกซึ้ง ควบคุมได้ และพร้อมใช้งานจริง">
-  <link rel="canonical" href="https://tayakorn221.github.io/codex-imagegen-guide/">
-  <meta name="theme-color" content="#f5f0e5">
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="คู่มือใช้ Codex สร้างภาพอย่างแยบยล">
-  <meta property="og:description" content="คู่มือภาษาไทยสำหรับกำกับภาพด้วย Codex: prompt, references, iteration, quality gate และตัวอย่างพร้อมใช้">
-  <meta property="og:url" content="https://tayakorn221.github.io/codex-imagegen-guide/">
-  <meta property="og:image" content="https://tayakorn221.github.io/codex-imagegen-guide/codex-imagegen-guide-assets/social-card.jpg">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="คู่มือใช้ Codex สร้างภาพอย่างแยบยล">
-  <meta name="twitter:description" content="เรียนรู้การใช้ Codex สร้างภาพให้คม ลึก และพร้อมใช้งานจริง">
-  <meta name="twitter:image" content="https://tayakorn221.github.io/codex-imagegen-guide/codex-imagegen-guide-assets/social-card.jpg">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800;900&family=Noto+Serif+Thai:wght@700;800&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      color-scheme: light;
-      --font-body: "Noto Sans Thai", "Leelawadee UI", "Segoe UI", Tahoma, sans-serif;
-      --font-display: "Noto Serif Thai", "Noto Sans Thai", "Leelawadee UI", serif;
-      --font-code: "Cascadia Mono", "Consolas", "Noto Sans Mono", monospace;
-      --ink: oklch(18% 0.024 72);
-      --ink-soft: oklch(35% 0.03 74);
-      --muted: oklch(49% 0.035 83);
-      --paper: oklch(96% 0.018 86);
-      --paper-strong: oklch(99% 0.012 86);
-      --wash: oklch(91% 0.026 84);
-      --line: oklch(78% 0.035 83);
-      --leaf: oklch(38% 0.075 158);
-      --leaf-soft: oklch(88% 0.047 154);
-      --copper: oklch(52% 0.105 47);
-      --copper-soft: oklch(89% 0.055 57);
-      --blueprint: oklch(40% 0.072 226);
-      --blueprint-soft: oklch(89% 0.035 226);
-      --shadow: 0 18px 42px color-mix(in oklch, var(--ink) 16%, transparent);
-      --radius: 8px;
-      --space-1: 0.25rem;
-      --space-2: 0.5rem;
-      --space-3: 0.75rem;
-      --space-4: 1rem;
-      --space-6: 1.5rem;
-      --space-8: 2rem;
-      --space-12: 3rem;
-      --space-16: 4rem;
-      --measure: 68ch;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    html {
-      scroll-behavior: smooth;
-      background: var(--paper);
-    }
-
-    body {
-      margin: 0;
-      font-family: var(--font-body);
-      font-size: 1rem;
-      line-height: 1.72;
-      color: var(--ink);
-      background:
-        linear-gradient(180deg, color-mix(in oklch, var(--paper-strong) 82%, var(--leaf-soft)) 0%, var(--paper) 38%, color-mix(in oklch, var(--paper) 80%, var(--blueprint-soft)) 100%);
-      text-rendering: optimizeLegibility;
-      font-kerning: normal;
-    }
-
-    a {
-      color: inherit;
-    }
-
-    .skip-link {
-      position: fixed;
-      left: var(--space-4);
-      top: var(--space-4);
-      z-index: 20;
-      padding: var(--space-2) var(--space-3);
-      background: var(--ink);
-      color: var(--paper-strong);
-      border-radius: var(--radius);
-      transform: translateY(-140%);
-      transition: transform 180ms ease;
-    }
-
-    .skip-link:focus {
-      transform: translateY(0);
-    }
-
-    .hero {
-      position: relative;
-      min-height: 34rem;
-      display: grid;
-      align-items: end;
-      padding: max(1rem, env(safe-area-inset-top)) var(--space-4) var(--space-8);
-      overflow: hidden;
-      isolation: isolate;
-      color: var(--paper-strong);
-      background: var(--ink);
-    }
-
-    .hero::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      z-index: -2;
-      background-image: url("codex-imagegen-guide-assets/coffee-hero-960.webp");
-      background-size: cover;
-      background-position: center;
-      filter: saturate(0.96) contrast(1.03);
-      transform: scale(1.01);
-    }
-
-    .hero::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      z-index: -1;
-      background:
-        linear-gradient(90deg, color-mix(in oklch, var(--ink) 88%, transparent) 0%, color-mix(in oklch, var(--ink) 61%, transparent) 42%, color-mix(in oklch, var(--ink) 18%, transparent) 100%),
-        linear-gradient(0deg, color-mix(in oklch, var(--ink) 42%, transparent) 0%, transparent 54%);
-    }
-
-    .hero-inner {
-      width: min(76rem, 100%);
-      margin: 0 auto;
-      display: grid;
-      gap: var(--space-4);
-    }
-
-    .kicker {
-      margin: 0;
-      max-width: var(--measure);
-      color: oklch(86% 0.048 86);
-      font-size: 0.86rem;
-      font-weight: 700;
-    }
-
-    h1,
-    h2,
-    h3 {
-      margin: 0;
-      line-height: 1.18;
-      font-weight: 800;
-      letter-spacing: 0;
-    }
-
-    h1,
-    h2 {
-      font-family: var(--font-display);
-    }
-
-    h1 {
-      max-width: 13ch;
-      font-size: 3.25rem;
-      font-weight: 800;
-    }
-
-    .hero p {
-      max-width: 56ch;
-      margin: 0;
-      color: oklch(91% 0.018 87);
-      font-size: 1.18rem;
-    }
-
-    .hero-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: var(--space-3);
-      margin-top: var(--space-2);
-    }
-
-    .button {
-      min-height: 2.75rem;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: var(--space-2);
-      padding: 0.7rem 1rem;
-      border: 1px solid color-mix(in oklch, var(--paper-strong) 42%, transparent);
-      border-radius: var(--radius);
-      color: var(--paper-strong);
-      background: color-mix(in oklch, var(--paper-strong) 12%, transparent);
-      text-decoration: none;
-      font-weight: 700;
-      line-height: 1.2;
-      transition: transform 160ms ease, background 160ms ease, border-color 160ms ease;
-    }
-
-    .button.primary {
-      background: var(--paper-strong);
-      color: var(--ink);
-      border-color: var(--paper-strong);
-    }
-
-    .button:hover,
-    .button:focus-visible {
-      transform: translateY(-1px);
-      background: color-mix(in oklch, var(--paper-strong) 20%, transparent);
-      outline: none;
-    }
-
-    .button.primary:hover,
-    .button.primary:focus-visible {
-      background: var(--copper-soft);
-      border-color: var(--copper-soft);
-    }
-
-    .shell {
-      width: min(76rem, calc(100% - 2rem));
-      margin: 0 auto;
-      display: grid;
-      gap: var(--space-8);
-      padding: var(--space-8) 0 var(--space-16);
-    }
-
-    .layout {
-      display: grid;
-      gap: var(--space-8);
-    }
-
-    .toc {
-      display: grid;
-      gap: var(--space-3);
-      align-self: start;
-      padding: var(--space-4);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      background: color-mix(in oklch, var(--paper-strong) 76%, transparent);
-    }
-
-    .toc strong {
-      font-size: 0.9rem;
-    }
-
-    .toc a {
-      display: block;
-      padding: var(--space-2) 0;
-      color: var(--ink-soft);
-      text-decoration: none;
-      border-top: 1px solid color-mix(in oklch, var(--line) 52%, transparent);
-      line-height: 1.35;
-    }
-
-    .toc a:hover,
-    .toc a:focus-visible {
-      color: var(--leaf);
-      outline: none;
-    }
-
-    main {
-      display: grid;
-      gap: var(--space-12);
-      min-width: 0;
-    }
-
-    section {
-      scroll-margin-top: var(--space-8);
-    }
-
-    .section-head {
-      display: grid;
-      gap: var(--space-3);
-      margin-bottom: var(--space-6);
-    }
-
-    .eyebrow {
-      margin: 0;
-      color: var(--copper);
-      font-size: 0.82rem;
-      font-weight: 800;
-    }
-
-    h2 {
-      max-width: 17ch;
-      font-size: 2rem;
-    }
-
-    h3 {
-      font-size: 1.2rem;
-    }
-
-    p {
-      max-width: var(--measure);
-      margin: 0 0 var(--space-4);
-    }
-
-    .lead {
-      color: var(--ink-soft);
-      font-size: 1.12rem;
-    }
-
-    .principle-grid,
-    .usecase-grid,
-    .mode-grid,
-    .glossary-grid,
-    .repair-grid {
-      display: grid;
-      gap: var(--space-4);
-    }
-
-    .principle,
-    .usecase,
-    .mode,
-    .glossary,
-    .repair {
-      padding: var(--space-5, 1.25rem);
-      border-radius: var(--radius);
-      border: 1px solid var(--line);
-      background: color-mix(in oklch, var(--paper-strong) 78%, var(--paper));
-    }
-
-    .principle {
-      display: grid;
-      gap: var(--space-2);
-    }
-
-    .number {
-      display: inline-flex;
-      width: 2rem;
-      height: 2rem;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      background: var(--leaf-soft);
-      color: var(--leaf);
-      font-weight: 900;
-      font-variant-numeric: tabular-nums;
-    }
-
-    .usecase {
-      border-color: color-mix(in oklch, var(--blueprint) 25%, var(--line));
-      background: color-mix(in oklch, var(--blueprint-soft) 48%, var(--paper-strong));
-    }
-
-    .mode {
-      border-color: color-mix(in oklch, var(--leaf) 25%, var(--line));
-      background: color-mix(in oklch, var(--leaf-soft) 45%, var(--paper-strong));
-    }
-
-    .glossary {
-      display: grid;
-      gap: var(--space-2);
-    }
-
-    .glossary code {
-      color: var(--blueprint);
-      font-weight: 850;
-    }
-
-    .usecase strong,
-    .mode strong,
-    .glossary strong,
-    .repair strong {
-      display: block;
-      margin-bottom: var(--space-2);
-      line-height: 1.35;
-    }
-
-    .usecase span,
-    .mode span,
-    .glossary span,
-    .repair span,
-    .principle span {
-      color: var(--ink-soft);
-    }
-
-    .formula {
-      display: grid;
-      gap: var(--space-4);
-    }
-
-    .code-panel {
-      overflow: hidden;
-      border: 1px solid color-mix(in oklch, var(--ink) 18%, var(--line));
-      border-radius: var(--radius);
-      background: oklch(21% 0.028 80);
-      box-shadow: var(--shadow);
-    }
-
-    .code-bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: var(--space-3);
-      min-height: 3rem;
-      padding: var(--space-2) var(--space-3);
-      color: oklch(88% 0.025 84);
-      border-bottom: 1px solid color-mix(in oklch, var(--paper-strong) 14%, transparent);
-      background: color-mix(in oklch, var(--ink) 58%, oklch(26% 0.045 78));
-    }
-
-    .code-bar span {
-      font-size: 0.82rem;
-      font-weight: 800;
-    }
-
-    .copy-button {
-      min-height: 2.75rem;
-      padding: 0.48rem 0.72rem;
-      border: 1px solid color-mix(in oklch, var(--paper-strong) 34%, transparent);
-      border-radius: var(--radius);
-      color: oklch(94% 0.02 86);
-      background: color-mix(in oklch, var(--paper-strong) 9%, transparent);
-      font: inherit;
-      font-size: 0.86rem;
-      font-weight: 800;
-      cursor: pointer;
-    }
-
-    .copy-button:hover,
-    .copy-button:focus-visible {
-      outline: 2px solid var(--copper-soft);
-      outline-offset: 2px;
-    }
-
-    pre {
-      margin: 0;
-      padding: var(--space-4);
-      overflow-x: auto;
-      white-space: pre-wrap;
-      overflow-wrap: anywhere;
-      color: oklch(93% 0.018 85);
-      font-family: var(--font-code);
-      font-size: 0.92rem;
-      line-height: 1.62;
-      tab-size: 2;
-    }
-
-    .code-panel + .code-panel,
-    .callout + .code-panel {
-      margin-top: var(--space-4);
-    }
-
-    code {
-      font-family: var(--font-code);
-      font-variant-ligatures: none;
-    }
-
-    .workflow {
-      display: grid;
-      gap: 0;
-      border-top: 1px solid var(--line);
-    }
-
-    .step {
-      display: grid;
-      gap: var(--space-3);
-      padding: var(--space-6) 0;
-      border-bottom: 1px solid var(--line);
-    }
-
-    .step-label {
-      color: var(--copper);
-      font-size: 0.86rem;
-      font-weight: 900;
-    }
-
-    .callout {
-      padding: var(--space-6);
-      border-radius: var(--radius);
-      border: 1px solid color-mix(in oklch, var(--leaf) 34%, var(--line));
-      background:
-        linear-gradient(135deg, color-mix(in oklch, var(--leaf-soft) 74%, var(--paper-strong)), color-mix(in oklch, var(--copper-soft) 42%, var(--paper-strong)));
-    }
-
-    .callout p:last-child {
-      margin-bottom: 0;
-    }
-
-    .checklist {
-      display: grid;
-      gap: var(--space-2);
-      padding: 0;
-      margin: 0;
-      list-style: none;
-    }
-
-    .checklist li {
-      display: grid;
-      grid-template-columns: 1.8rem 1fr;
-      gap: var(--space-3);
-      align-items: start;
-      padding: var(--space-3) 0;
-      border-bottom: 1px solid color-mix(in oklch, var(--line) 58%, transparent);
-    }
-
-    .checklist li::before {
-      content: "";
-      width: 0.85rem;
-      height: 0.85rem;
-      margin-top: 0.42rem;
-      border: 2px solid var(--leaf);
-      border-radius: 3px;
-      background: var(--paper-strong);
-    }
-
-    details {
-      border-top: 1px solid var(--line);
-    }
-
-    details:last-child {
-      border-bottom: 1px solid var(--line);
-    }
-
-    summary {
-      min-height: 3.25rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: var(--space-4);
-      padding: var(--space-3) 0;
-      cursor: pointer;
-      font-weight: 850;
-      line-height: 1.35;
-    }
-
-    summary::after {
-      content: "+";
-      width: 1.8rem;
-      height: 1.8rem;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      flex: 0 0 auto;
-      border: 1px solid var(--line);
-      border-radius: 50%;
-      color: var(--leaf);
-      font-weight: 900;
-    }
-
-    details[open] summary::after {
-      content: "-";
-    }
-
-    details > div {
-      padding-bottom: var(--space-5, 1.25rem);
-      color: var(--ink-soft);
-    }
-
-    .footer {
-      padding: var(--space-8) 0 max(var(--space-8), env(safe-area-inset-bottom));
-      color: var(--ink-soft);
-      border-top: 1px solid var(--line);
-    }
-
-    @media (min-width: 720px) {
-      h1 {
-        font-size: 4.8rem;
-      }
-
-      h2 {
-        font-size: 2.55rem;
-      }
-
-      .hero {
-        min-height: 38rem;
-        padding-left: var(--space-8);
-        padding-right: var(--space-8);
-      }
-
-      .hero::before {
-        background-image: url("codex-imagegen-guide-assets/coffee-hero-1440.webp");
-      }
-
-      .principle-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
-      .usecase-grid,
-      .mode-grid,
-      .glossary-grid,
-      .repair-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-      }
-
-      .step {
-        grid-template-columns: 10rem 1fr;
-      }
-    }
-
-    @media (min-width: 1040px) {
-      .layout {
-        grid-template-columns: 16rem minmax(0, 1fr);
-        align-items: start;
-      }
-
-      .toc {
-        position: sticky;
-        top: var(--space-6);
-      }
-    }
-
-    @media (min-width: 1280px) {
-      .hero::before {
-        background-image: url("codex-imagegen-guide-assets/coffee-hero-1774.webp");
-      }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      *,
-      *::before,
-      *::after {
-        scroll-behavior: auto !important;
-        transition-duration: 0.01ms !important;
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-      }
-    }
-
-    @media print {
-      .hero {
-        min-height: auto;
-        color: var(--ink);
-        background: none;
-        padding-top: var(--space-8);
-      }
-
-      .hero::before,
-      .hero::after,
-      .toc,
-      .copy-button,
-      .hero-actions {
-        display: none;
-      }
-
-      .shell {
-        width: 100%;
-        padding: 0;
-      }
-
-      .layout {
-        display: block;
-      }
-
-      .code-panel {
-        box-shadow: none;
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>สั่งภาพด้วย Codex — ฉบับเข้าใจถึงแก่น</title>
+<meta name="description" content="คู่มือกำกับภาพด้วย Codex ฉบับเข้าใจถึงแก่น — เข้าใจกลไกว่าทำไมภาพออกมาไม่ตรงใจ แล้วคุมมันด้วย brief, use case, invariant, iteration และ quality gate · ภาษาไทย พร้อมไดอะแกรมและ prompt พร้อมใช้">
+<link rel="canonical" href="https://tayakorn221.github.io/codex-imagegen-guide/">
+<meta name="theme-color" content="#faf7f1">
+<meta property="og:type" content="website">
+<meta property="og:title" content="สั่งภาพด้วย Codex — ฉบับเข้าใจถึงแก่น">
+<meta property="og:description" content="ไม่ใช่คลังคำสวยที่ต้องท่อง แต่คือกลไกเดียวที่อธิบายได้ทั้งเล่มว่าทำไมภาพถึงไม่ตรงใจ — และปักหมุดตรงไหนถึงจะตรง">
+<meta property="og:url" content="https://tayakorn221.github.io/codex-imagegen-guide/">
+<meta property="og:image" content="https://tayakorn221.github.io/codex-imagegen-guide/codex-imagegen-guide-assets/social-card.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="สั่งภาพด้วย Codex — ฉบับเข้าใจถึงแก่น">
+<meta name="twitter:description" content="เข้าใจกลไกของการสั่งภาพ แล้วคุมผลลัพธ์ได้จริง ไม่ใช่สุ่มจนกว่าจะสวย">
+<meta name="twitter:image" content="https://tayakorn221.github.io/codex-imagegen-guide/codex-imagegen-guide-assets/social-card.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@400;500;600;700&family=Bai+Jamjuree:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#faf7f1; --paper-2:#f2ede3; --ink:#222b2e; --ink-soft:#54625f;
+  --line:#ddd5c6; --teal:#0e6e63; --teal-deep:#0a5048; --teal-soft:#e2eeea;
+  --amber:#c07415; --amber-soft:#f8ecd8; --red:#b3402e; --red-soft:#f6e3de;
+  --code-bg:#26302f; --code-ink:#e8e3d6;
+  --l0:#5a8a5e; --l0-soft:#e6efe4;
+  --l1:#0e6e63; --l1-soft:#e2eeea;
+  --l2:#c07415; --l2-soft:#f8ecd8;
+  --l3:#c2562a; --l3-soft:#f8e6dc;
+  --l4:#a33327; --l4-soft:#f6e0db;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:2rem}
+body{background:var(--paper);color:var(--ink);font-family:'Anuphan',sans-serif;font-size:17px;line-height:1.85;-webkit-font-smoothing:antialiased}
+::selection{background:var(--teal);color:#fff}
+
+#progress{position:fixed;top:0;left:0;height:3px;background:var(--teal);width:0;z-index:99}
+.skip{position:fixed;left:1rem;top:1rem;z-index:100;background:var(--ink);color:var(--paper);padding:.5rem .9rem;border-radius:8px;transform:translateY(-160%);transition:transform .18s}
+.skip:focus{transform:none}
+
+.layout{display:grid;grid-template-columns:320px minmax(0,1fr);max-width:1320px;margin:0 auto}
+@media(max-width:1080px){.layout{grid-template-columns:minmax(0,1fr)}}
+
+.sidebar{border-right:1px solid var(--line);padding:2.4rem 1.5rem 2.4rem 2rem}
+.sidebar-inner{position:sticky;top:1.8rem;max-height:calc(100vh - 3.6rem);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+.brand{font-family:'Bai Jamjuree',sans-serif;font-weight:700;font-size:1.15rem;letter-spacing:.02em;color:var(--teal-deep)}
+.brand .arrow{color:var(--amber);font-family:'IBM Plex Mono',monospace}
+.brand small{display:block;font-family:'Anuphan';font-weight:500;font-size:.78rem;color:var(--ink-soft);margin-top:.2rem}
+.toc{list-style:none;margin-top:1.5rem}
+.toc .grp{font-family:'IBM Plex Mono',monospace;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);margin:1.1rem 0 .35rem .7rem;display:flex;align-items:center;gap:.45rem}
+.toc .grp::before{content:"";width:9px;height:9px;border-radius:2px;background:var(--gc,var(--teal))}
+.toc li a{display:flex;gap:.6rem;align-items:baseline;padding:.34rem .7rem;border-radius:7px;color:var(--ink-soft);text-decoration:none;font-size:.88rem;font-weight:500;transition:background .15s,color .15s}
+.toc li a .n{font-family:'IBM Plex Mono',monospace;font-size:.7rem;color:var(--amber);min-width:1.6em}
+.toc li a:hover{background:var(--paper-2);color:var(--ink)}
+.toc li a.active{background:var(--teal-soft);color:var(--teal-deep);font-weight:600}
+.toc li a.active .n{color:var(--teal)}
+#tocToggle{display:none;margin-top:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:#fff;border-radius:7px;font-family:'Anuphan';font-size:.85rem;cursor:pointer;color:var(--ink-soft)}
+@media(max-width:1080px){
+  .sidebar{border-right:0;border-bottom:1px solid var(--line);padding:1.4rem}
+  .sidebar-inner{position:static;max-height:none;overflow:visible}
+  .toc{display:none}.toc.open{display:block}#tocToggle{display:inline-block}
+}
+
+main{padding:0 clamp(1.3rem,4vw,4.5rem) 6rem;max-width:880px}
+
+.hero{padding:4.5rem 0 3.2rem;border-bottom:1px solid var(--line)}
+.hero .kicker{font-family:'IBM Plex Mono',monospace;font-size:.78rem;letter-spacing:.14em;color:var(--amber);text-transform:uppercase}
+.hero h1{font-family:'Bai Jamjuree',sans-serif;font-weight:700;font-size:clamp(2.1rem,5vw,3.3rem);line-height:1.15;margin:.7rem 0 1.1rem}
+.hero h1 .g{color:var(--teal)}
+.hero h1 .arrow{color:var(--amber);font-family:'IBM Plex Mono',monospace}
+.hero p.lead{font-size:1.07rem;color:var(--ink-soft);max-width:42em}
+.hero p.lead a{color:var(--teal-deep);border-bottom:1px solid var(--line)}
+.hero .meta{display:flex;flex-wrap:wrap;gap:.6rem 1.6rem;margin-top:1.6rem;font-size:.83rem;color:var(--ink-soft)}
+.hero .meta b{color:var(--ink);font-weight:600}
+.ladder{display:flex;gap:.4rem;margin-top:1.8rem;flex-wrap:wrap}
+.ladder span{font-family:'IBM Plex Mono',monospace;font-size:.72rem;padding:.3rem .7rem;border-radius:20px;font-weight:500}
+
+.chapter{padding-top:4rem}
+.alias{display:block;height:0}
+.ch-head{border-bottom:2px solid var(--ink);padding-bottom:.85rem;margin-bottom:1.7rem}
+.ch-head .row{display:flex;align-items:baseline;gap:1.1rem}
+.ch-head .num{font-family:'Bai Jamjuree',sans-serif;font-weight:700;font-size:2.5rem;line-height:1;color:var(--amber)}
+.ch-head h2{font-family:'Bai Jamjuree',sans-serif;font-weight:700;font-size:clamp(1.3rem,2.6vw,1.7rem);line-height:1.3}
+.ch-head .chip{display:inline-block;margin-top:.7rem;font-family:'IBM Plex Mono',monospace;font-size:.7rem;font-weight:600;padding:.2rem .7rem;border-radius:20px;letter-spacing:.03em}
+
+h3{font-family:'Bai Jamjuree',sans-serif;font-weight:600;font-size:1.18rem;margin:2.5rem 0 .8rem;color:var(--teal-deep)}
+h4{font-family:'Bai Jamjuree',sans-serif;font-weight:600;font-size:1rem;margin:1.7rem 0 .5rem}
+p{margin:.85rem 0}strong{font-weight:600}em{font-style:italic;color:var(--ink-soft)}
+ul,ol{margin:.8rem 0 1rem 1.5rem}li{margin:.35rem 0}li::marker{color:var(--amber)}
+code{font-family:'IBM Plex Mono',monospace;font-size:.82em;background:var(--paper-2);border:1px solid var(--line);padding:.08em .4em;border-radius:5px}
+a{color:var(--teal-deep)}
+
+blockquote{margin:1.8rem 0;padding:.15rem 0 .15rem 1.15rem;border-left:3px solid var(--amber);
+  font-family:'Bai Jamjuree',sans-serif;font-weight:600;font-size:1.08rem;line-height:1.55;color:var(--ink)}
+
+pre{background:var(--code-bg);color:var(--code-ink);font-family:'IBM Plex Mono','Anuphan',monospace;font-size:.86rem;line-height:1.85;padding:1.1rem 1.3rem;border-radius:10px;overflow-x:auto;margin:1.2rem 0;position:relative}
+pre code{background:none;border:0;padding:0;color:inherit;white-space:pre-wrap;word-break:break-word;font-size:inherit}
+pre .ph{color:#f0b35e;font-weight:600}
+pre .cm{color:#8fa39b}
+pre .gd{color:#9ed0b5}
+pre .bd{color:#e88c74}
+.copy-btn{position:absolute;top:.5rem;right:.55rem;font-family:'IBM Plex Mono',monospace;font-size:.65rem;letter-spacing:.03em;color:#cdd6d0;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.18);padding:.2rem .55rem;border-radius:6px;cursor:pointer;opacity:0;transition:opacity .15s,background .15s,color .15s}
+pre:hover .copy-btn,.copy-btn:focus-visible{opacity:1}
+.copy-btn:hover{background:rgba(255,255,255,.14);color:#fff}
+.copy-btn.done{color:#9ed0b5;border-color:#9ed0b5;opacity:1}
+@media(max-width:680px){.copy-btn{opacity:.85}}
+.prompt-label{font-family:'IBM Plex Mono',monospace;font-size:.72rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin:1.4rem 0 -.4rem;color:var(--ink-soft)}
+
+table{width:100%;border-collapse:collapse;margin:1.4rem 0;font-size:.92rem;line-height:1.6}
+th{font-family:'Bai Jamjuree',sans-serif;font-weight:600;text-align:left;background:var(--ink);color:var(--paper);padding:.6rem .85rem;font-size:.85rem}
+th:first-child{border-radius:8px 0 0 0}th:last-child{border-radius:0 8px 0 0}
+td{padding:.6rem .85rem;border-bottom:1px solid var(--line);vertical-align:top}
+tr:nth-child(even) td{background:rgba(242,237,227,.55)}
+td b{font-weight:600;color:var(--teal-deep)}
+td code{font-size:.78em}
+
+.note,.warn,.use{margin:1.6rem 0;padding:1rem 1.2rem .95rem;border-radius:10px;font-size:.94rem}
+.note{background:var(--teal-soft)}.warn{background:var(--red-soft)}.use{background:var(--amber-soft)}
+.note .t,.warn .t,.use .t{font-family:'Bai Jamjuree',sans-serif;font-weight:600;font-size:.86rem;display:block;margin-bottom:.3rem}
+.note .t{color:var(--teal-deep)}.warn .t{color:var(--red)}.use .t{color:var(--amber)}
+.note code,.warn code,.use code{background:rgba(255,255,255,.6)}
+
+.uc{border:1px solid var(--line);border-radius:11px;padding:1rem 1.2rem 1.05rem;margin:1.1rem 0;background:#fff}
+.uc h4{margin:0 0 .6rem;font-family:'IBM Plex Mono',monospace;font-size:.88rem;font-weight:600;color:var(--teal-deep);letter-spacing:.01em}
+.uc .r{display:grid;grid-template-columns:6.6rem minmax(0,1fr);gap:.15rem .9rem;font-size:.93rem;line-height:1.68}
+.uc .k{font-family:'IBM Plex Mono',monospace;font-size:.66rem;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-soft);padding-top:.42rem}
+@media(max-width:560px){.uc .r{grid-template-columns:1fr;gap:0}.uc .k{padding-top:.55rem}}
+
+.fig{margin:2.2rem 0;padding:1.6rem 1.4rem 1.1rem;background:#fff;border:1px solid var(--line);border-radius:12px;overflow-x:auto}
+.fig svg{width:100%;height:auto;display:block;min-width:560px}
+.fig img{width:100%;height:auto;display:block;border-radius:8px;min-width:0}
+.fig figcaption{margin-top:.9rem;padding-top:.7rem;border-top:1px dashed var(--line);font-size:.83rem;color:var(--ink-soft)}
+.fig figcaption b{color:var(--ink);font-family:'IBM Plex Mono',monospace;font-size:.76rem}
+.fig text{font-family:'Anuphan',sans-serif}
+.fig .lbl{font-size:13px;font-weight:600;fill:var(--ink)}
+.fig .lbl-w{font-size:13px;font-weight:600;fill:#fff}
+.fig .sub{font-size:11px;fill:var(--ink-soft)}
+.fig .sub-w{font-size:11px;fill:#e8e3d6}
+.fig .mono{font-family:'IBM Plex Mono',monospace;font-size:11px;fill:var(--ink-soft)}
+.fig .flow{stroke:var(--ink-soft);stroke-width:1.5;fill:none}
+.fig .flow-t{stroke:var(--teal);stroke-width:1.7;fill:none}
+.fig .flow-a{stroke:var(--amber);stroke-width:1.7;fill:none}
+.fig .flow-r{stroke:var(--red);stroke-width:1.7;fill:none}
+.fig .dash{stroke-dasharray:5 4}
+
+.check{list-style:none;margin:1.4rem 0 1rem}
+.check li{display:grid;grid-template-columns:1.4rem 1fr;gap:.7rem;align-items:start;margin:.1rem 0;padding:.5rem 0;border-bottom:1px solid var(--line);font-size:.95rem;line-height:1.6}
+.check li::before{content:"";width:.9rem;height:.9rem;margin-top:.5rem;border:2px solid var(--teal);border-radius:4px;background:#fff}
+
+.chapter-end{margin-top:3.2rem;text-align:center;color:var(--amber);font-family:'IBM Plex Mono',monospace;font-size:.8rem;letter-spacing:.5em}
+footer{margin-top:5rem;padding-top:2rem;border-top:2px solid var(--ink);font-size:.88rem;color:var(--ink-soft)}
+footer b{color:var(--ink)}
+footer a{color:var(--teal-deep);border-bottom:1px solid var(--line)}
+footer a:hover{color:var(--red);border-color:var(--red)}
+
+@media print{
+  #progress,.sidebar,#tocToggle,.copy-btn,.skip{display:none}
+  .layout{display:block}main{max-width:100%;padding:0}
+  .fig,table,pre,.note,.warn,.use,.uc{break-inside:avoid}
+  .fig svg{min-width:0}.chapter{padding-top:2rem}
+}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition-duration:.01ms !important}}
+</style>
 </head>
 <body>
-  <a class="skip-link" href="#content">ข้ามไปอ่านคู่มือ</a>
+<div id="progress"></div>
+<a class="skip" href="#ch1">ข้ามไปอ่านคู่มือ</a>
 
-  <header class="hero">
-    <div class="hero-inner">
-      <p class="kicker">Codex Image Generation Field Manual</p>
-      <h1>สร้างภาพให้เกินคำว่า สวย</h1>
-      <p>คู่มือใช้งาน Codex เพื่อกำกับภาพอย่างมีชั้นเชิง ตั้งแต่การวาง brief, เขียน prompt, ใช้ภาพอ้างอิง, ตรวจผลลัพธ์ และ iterate จนได้ asset ที่ใช้ในงานจริงได้</p>
-      <nav class="hero-actions" aria-label="ทางลัด">
-        <a class="button primary" href="#formula">เริ่มจากสูตร prompt</a>
-        <a class="button" href="#examples">ดูตัวอย่างพร้อมคัดลอก</a>
-      </nav>
-    </div>
-  </header>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M1,1 L8,4.5 L1,8 Z" fill="#54625f"/></marker>
+  <marker id="ar-t" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M1,1 L8,4.5 L1,8 Z" fill="#0e6e63"/></marker>
+  <marker id="ar-a" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M1,1 L8,4.5 L1,8 Z" fill="#c07415"/></marker>
+  <marker id="ar-r" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M1,1 L8,4.5 L1,8 Z" fill="#b3402e"/></marker>
+</defs></svg>
 
-  <div class="shell">
-    <div class="layout">
-      <aside class="toc" aria-label="สารบัญ">
-        <strong>สารบัญ</strong>
-        <a href="#mindset">วิธีคิด</a>
-        <a href="#formula">สูตร prompt</a>
-        <a href="#modes">สร้างใหม่ vs แก้เดิม</a>
-        <a href="#usecases">เลือก use case</a>
-        <a href="#glossary">ศัพท์ที่ต้องรู้</a>
-        <a href="#workflow">workflow 3 รอบ</a>
-        <a href="#examples">prompt พร้อมใช้</a>
-        <a href="#reference">ภาพอ้างอิง</a>
-        <a href="#repair">คำสั่งแก้ภาพ</a>
-        <a href="#quality">เช็กคุณภาพ</a>
-      </aside>
+<div class="layout">
+<aside class="sidebar">
+  <div class="sidebar-inner">
+    <div class="brand">CODEX <span class="arrow">·</span> IMAGEGEN<small>สั่งภาพให้ได้ดั่งใจ · ฉบับเข้าใจถึงแก่น</small></div>
+    <button id="tocToggle">☰ สารบัญ</button>
+    <ul class="toc" id="toc">
+      <li class="grp" style="--gc:var(--l0)">Level 0 · ปูพื้น</li>
+      <li><a href="#ch1"><span class="n">01</span>ทำไม "ขอรูปสวย ๆ" ถึงพัง</a></li>
+      <li><a href="#ch2"><span class="n">02</span>กายวิภาคของ brief</a></li>
+      <li class="grp" style="--gc:var(--l1)">Level 1 · ปักหมุดให้แม่น</li>
+      <li><a href="#ch3"><span class="n">03</span>คำที่มีน้ำหนักจริง</a></li>
+      <li><a href="#ch4"><span class="n">04</span>Use case — สวิตช์เปลี่ยนค่ากลาง</a></li>
+      <li><a href="#ch5"><span class="n">05</span>ภาพนี้ต้องไปอยู่ตรงไหน</a></li>
+      <li class="grp" style="--gc:var(--l2)">Level 2 · แก้ให้ตรงจุด</li>
+      <li><a href="#ch6"><span class="n">06</span>Generate · Edit · Reference</a></li>
+      <li><a href="#ch7"><span class="n">07</span>Invariant — ประโยคที่แรงที่สุด</a></li>
+      <li><a href="#ch8"><span class="n">08</span>Iterate ทีละตัวแปร</a></li>
+      <li class="grp" style="--gc:var(--l3)">Level 3 · ด่านยาก</li>
+      <li><a href="#ch9"><span class="n">09</span>ตัวหนังสือในภาพ</a></li>
+      <li><a href="#ch10"><span class="n">10</span>ภาพอ้างอิงและ identity</a></li>
+      <li class="grp" style="--gc:var(--l4)">Level 4 · ส่งงานจริง</li>
+      <li><a href="#ch11"><span class="n">11</span>วินิจฉัยจากอาการ</a></li>
+      <li><a href="#ch12"><span class="n">12</span>Quality gate &amp; คลัง prompt</a></li>
+      <li class="grp" style="--gc:var(--ink-soft)">ภาคผนวก</li>
+      <li><a href="#glossary"><span class="n">＋</span>ศัพท์ที่ใช้ในเล่ม</a></li>
+    </ul>
+  </div>
+</aside>
 
-      <main id="content">
-        <section id="mindset">
-          <div class="section-head">
-            <p class="eyebrow">01 / Mindset</p>
-            <h2>คุยกับ Codex เหมือนผู้กำกับภาพ</h2>
-            <p class="lead">อย่าขอแค่ “รูปสวย ๆ” ให้บอกว่าภาพนี้ต้องทำหน้าที่อะไร ใครจะดู เห็นแล้วควรรู้สึกอย่างไร และอะไรคือสิ่งที่ห้ามพลาด</p>
-          </div>
+<main>
+<header class="hero">
+  <div class="kicker">Codex Image Generation · ฉบับเข้าใจถึงแก่น</div>
+  <h1>ภาพไม่ตรงใจ <span class="arrow">≠</span> โมเดลไม่เก่ง<br>แต่คุณไม่ได้บอกว่า<span class="g">อะไรห้ามเดา</span></h1>
+  <p class="lead">คู่มือกำกับภาพด้วย Codex ที่ไม่ใช่คลังคำสวยให้ท่อง — เล่มนี้มีกลไกแกนอยู่ข้อเดียว แล้วใช้กลไกข้อนั้นอธิบายทุกอย่าง ตั้งแต่ทำไมภาพออกมาเหมือน stock photo ทำไมวางหัวข้อไม่ลง ทำไมแก้แสงอย่างเดียวแล้วหน้าคนดันเปลี่ยน ไปจนถึงทำไมตัวหนังสือในภาพถึงสะกดผิด · อ่านจบแล้วคุณจะเดาได้เองว่า prompt ที่ยังไม่ดีขาดอะไร</p>
+  <div class="meta">
+    <span>ระดับ: <b>สั่งภาพเป็น → กำกับภาพเป็น</b></span>
+    <span>12 บท · 5 ระดับ</span>
+    <span>เวลาอ่าน: <b>~35 นาที</b> (อ่านเป็น Level ได้)</span>
+    <span>ภาษา: <b>ไทย พร้อมไดอะแกรม</b></span>
+  </div>
+  <div class="ladder">
+    <span style="background:var(--l0-soft);color:var(--l0)">0 · ปูพื้น</span>
+    <span style="background:var(--l1-soft);color:var(--l1)">1 · ปักหมุดให้แม่น</span>
+    <span style="background:var(--l2-soft);color:var(--l2)">2 · แก้ให้ตรงจุด</span>
+    <span style="background:var(--l3-soft);color:var(--l3)">3 · ด่านยาก</span>
+    <span style="background:var(--l4-soft);color:var(--l4)">4 · ส่งงานจริง</span>
+  </div>
+</header>
 
-          <div class="principle-grid">
-            <article class="principle">
-              <span class="number">1</span>
-              <h3>เริ่มจากหน้าที่ของภาพ</h3>
-              <span>Hero image ต้องมีพื้นที่ว่างสำหรับข้อความ ส่วน product mockup ต้องชัดเรื่องทรง วัสดุ และฉลาก งานแต่ละชนิดต้องกำกับคนละแบบ</span>
-            </article>
-            <article class="principle">
-              <span class="number">2</span>
-              <h3>ใส่ action ให้ subject</h3>
-              <span>“barista preparing pour-over coffee” มีชีวิตกว่า “barista in cafe” เพราะภาพรู้ว่าต้องจับช่วงเวลาไหน</span>
-            </article>
-            <article class="principle">
-              <span class="number">3</span>
-              <h3>ใช้ภาษากล้องและพื้นที่</h3>
-              <span>คำอย่าง wide crop, close-up, top-down, negative space, shallow depth of field ช่วยล็อก composition ได้มากขึ้น</span>
-            </article>
-            <article class="principle">
-              <span class="number">4</span>
-              <h3>ข้อห้ามคือเครื่องมือควบคุม</h3>
-              <span>ใช้ no logos, no watermark และ no extra text เป็นค่าเริ่มต้นเมื่อไม่ต้องการข้อความหรือแบรนด์ ยกเว้นงานที่ตั้งใจทำโลโก้ ป้าย หรือข้อความในภาพ</span>
-            </article>
-          </div>
-        </section>
+<!-- ============================ CH1 ============================ -->
+<section class="chapter" id="ch1">
+  <span class="alias" id="mindset"></span>
+  <div class="ch-head">
+    <div class="row"><div class="num">01</div><h2>ทำไม "ขอรูปสวย ๆ" ถึงได้ภาพที่ใช้งานไม่ได้</h2></div>
+    <span class="chip" style="background:var(--l0-soft);color:var(--l0)">LEVEL 0 · ปูพื้น</span>
+  </div>
 
-        <section id="formula">
-          <div class="section-head">
-            <p class="eyebrow">02 / Prompt Grammar</p>
-            <h2>สูตรหลักที่ควรจำ</h2>
-            <p class="lead">ใช้โครงนี้เป็น default brief แล้วตัดบรรทัดที่ไม่จำเป็นออก อย่าเติมรายละเอียดมั่ว ให้เติมเฉพาะสิ่งที่ทำให้ภาพสำเร็จจริง</p>
-          </div>
+  <p>ฉากที่เกิดกับทุกคน — คุณพิมพ์ว่า "ขอภาพร้านกาแฟสวย ๆ หน่อย" แล้วได้ภาพมาจริง สวยจริงด้วย แต่พอเอาไปวางบนเว็บ: หัวข้อวางไม่ลงเพราะตัวแบบอยู่กลางเป๊ะ แสงดูเหมือนโฆษณาน้ำอัดลม และบนป้ายหลังร้านมีตัวหนังสือมั่ว ๆ ที่อ่านไม่ออก</p>
+  <p>ปฏิกิริยาแรกของคนส่วนใหญ่คือ "โมเดลยังไม่เก่งพอ" — แต่ความจริงตรงข้าม <strong>มันทำถูกทุกอย่างตามที่ถูกสั่ง</strong> ปัญหาคือคำสั่งนั้นเปิดช่องให้มันเดาไว้เป็นสิบช่อง แล้วมันก็เดา</p>
 
-          <div class="formula">
-            <div class="code-panel">
-              <div class="code-bar">
-                <span>Master Prompt Template</span>
-                <button class="copy-button" type="button" data-copy="template" aria-label="Copy master prompt template">Copy</button>
-              </div>
-              <pre id="template"><code>$imagegen
-Use case: &lt;photorealistic-natural / product-mockup / ui-mockup / infographic-diagram / logo-brand / illustration-story&gt;
-Asset type: &lt;ภาพนี้ใช้ที่ไหน เช่น website hero, poster, thumbnail, game asset&gt;
-Primary request: &lt;ภาพหลักที่ต้องการ&gt;
-Scene/backdrop: &lt;ฉาก สถานที่ หรือบริบท&gt;
-Subject: &lt;ตัวเอก วัตถุหลัก และ action&gt;
-Style/medium: &lt;photorealistic editorial photography, 3D render, watercolor, vector-like&gt;
-Composition/framing: &lt;มุมกล้อง ระยะภาพ การวางตำแหน่ง พื้นที่ว่าง&gt;
-Lighting/mood: &lt;แสง เวลา อารมณ์&gt;
-Color palette: &lt;โทนสีหลักและสีที่ควรเลี่ยง&gt;
-Materials/textures: &lt;ผิววัสดุ รายละเอียดจริงที่อยากเห็น&gt;
-Text (verbatim): "&lt;ข้อความเป๊ะ ๆ ถ้ามี&gt;"
+  <h3>1.1 กลไกเดียวที่ต้องเข้าใจ</h3>
+  <blockquote>ทุกช่องที่คุณเว้นว่างไว้ โมเดลไม่ได้เว้นว่างตาม — มันเติมด้วย "ค่ากลาง" ของสิ่งที่มันเคยเห็นมา</blockquote>
+  <p>ก่อนจะวาดภาพออกมาได้หนึ่งใบ ทุกคำถามต้องมีคำตอบ: มุมกล้องไหน เวลาอะไร แสงมาจากทางไหน มีคนในภาพหรือเปล่า ตัวแบบอยู่ตรงไหนของเฟรม พื้นหลังรกหรือโล่ง วัสดุผิวสัมผัสแบบไหน — <strong>ไม่มีทางเลี่ยง เพราะภาพใบหนึ่งต้องตอบครบทุกข้อ</strong> ต่างจากข้อความที่เว้นไม่พูดถึงได้</p>
+  <p>คำถามข้อไหนที่คุณตอบไว้ใน prompt มันใช้คำตอบของคุณ · ข้อไหนที่คุณไม่ตอบ มันเติมด้วยคำตอบที่<strong>พบบ่อยที่สุด</strong>ในข้อมูลที่มันเคยเห็น — และคำตอบที่พบบ่อยที่สุดของคำว่า "ร้านกาแฟสวย" บนอินเทอร์เน็ตก็คือ <em>ภาพโฆษณากับ stock photo</em> นั่นแหละ</p>
+
+  <figure class="fig">
+    <svg viewBox="0 0 720 306" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="เปรียบเทียบสองฝั่ง ฝั่งซ้าย prompt สั้นทำให้พื้นที่ภาพที่เป็นไปได้กว้างมาก โมเดลจึงตกลงที่จุดค่ากลางซึ่งคือภาพโฆษณาหรือ stock photo ฝั่งขวา prompt ที่ปักหมุดหลายช่องทำให้พื้นที่แคบลงเหลือเฉพาะโซนที่ตรงกับงาน โมเดลจึงตกลงใกล้ภาพที่ต้องการ">
+      <text x="184" y="24" text-anchor="middle" class="mono" fill="#b3402e">prompt สั้น — "ร้านกาแฟสวย ๆ"</text>
+      <rect x="32" y="36" width="304" height="182" rx="12" fill="#faf7f1" stroke="#54625f" stroke-width="1.2" stroke-dasharray="6 5"/>
+      <circle cx="78" cy="74" r="4" fill="#ddd5c6"/><circle cx="130" cy="60" r="4" fill="#ddd5c6"/><circle cx="238" cy="66" r="4" fill="#ddd5c6"/>
+      <circle cx="292" cy="92" r="4" fill="#ddd5c6"/><circle cx="66" cy="132" r="4" fill="#ddd5c6"/><circle cx="112" cy="176" r="4" fill="#ddd5c6"/>
+      <circle cx="252" cy="180" r="4" fill="#ddd5c6"/><circle cx="300" cy="150" r="4" fill="#ddd5c6"/><circle cx="176" cy="196" r="4" fill="#ddd5c6"/>
+      <circle cx="210" cy="112" r="4" fill="#ddd5c6"/><circle cx="146" cy="120" r="4" fill="#ddd5c6"/><circle cx="60" cy="190" r="4" fill="#ddd5c6"/>
+      <circle cx="184" cy="128" r="11" fill="#c07415"/>
+      <text x="184" y="160" text-anchor="middle" class="lbl" font-size="12" fill="#c07415">ค่ากลาง</text>
+      <text x="184" y="240" text-anchor="middle" class="sub">ช่องว่างเยอะ → มันเลือกคำตอบที่พบบ่อยที่สุด</text>
+      <text x="184" y="258" text-anchor="middle" class="sub" fill="#b3402e">= ภาพโฆษณา / stock photo</text>
+
+      <text x="536" y="24" text-anchor="middle" class="mono" fill="#0a5048">prompt ที่ปักหมุด 6–8 ช่อง</text>
+      <rect x="384" y="36" width="304" height="182" rx="12" fill="#faf7f1" stroke="#54625f" stroke-width="1.2" stroke-dasharray="6 5"/>
+      <circle cx="430" cy="74" r="4" fill="#ece7dc"/><circle cx="482" cy="60" r="4" fill="#ece7dc"/><circle cx="644" cy="92" r="4" fill="#ece7dc"/>
+      <circle cx="418" cy="188" r="4" fill="#ece7dc"/><circle cx="652" cy="176" r="4" fill="#ece7dc"/><circle cx="470" cy="196" r="4" fill="#ece7dc"/>
+      <rect x="466" y="88" width="140" height="66" rx="10" fill="#e2eeea" stroke="#0e6e63" stroke-width="1.5"/>
+      <circle cx="536" cy="121" r="11" fill="#0e6e63"/>
+      <text x="536" y="176" text-anchor="middle" class="lbl" font-size="12" fill="#0a5048">โซนที่ตรงงาน</text>
+      <text x="536" y="240" text-anchor="middle" class="sub">แต่ละหมุดตัดตัวเลือกทิ้งเป็นกอง</text>
+      <text x="536" y="258" text-anchor="middle" class="sub" fill="#0a5048">= ภาพที่ใช้งานได้จริง</text>
+      <text x="536" y="288" text-anchor="middle" class="mono">งานของคุณไม่ใช่ "อธิบายภาพ" แต่คือ "ตัดสิ่งที่ไม่เอาออก"</text>
+    </svg>
+    <figcaption><b>FIG 1.1</b> — prompt ไม่ได้ทำงานแบบ "สั่งแล้วได้" แต่ทำงานแบบ "ตัดพื้นที่ความเป็นไปได้ให้แคบลง" · ยิ่งเว้นช่องไว้มาก ผลลัพธ์ยิ่งไหลกลับไปหาค่ากลาง</figcaption>
+  </figure>
+
+  <div class="note"><span class="t">💡 prompt คืออะไรกันแน่</span>ในเล่มนี้ prompt ไม่ได้แปลว่า "คำสั่ง" แต่แปลว่า <strong>ชุดข้อจำกัด</strong> — แต่ละบรรทัดที่คุณเขียนคือหมุดหนึ่งตัวที่ตอกลงไปเพื่อบอกว่า "ห้ามเดาช่องนี้" ส่วนช่องที่ไม่มีหมุด ถือว่าคุณอนุญาตให้มันเดา</div>
+
+  <h3>1.2 เพราะฉะนั้น "คำสวย" จึงไม่ช่วย</h3>
+  <p>คำอย่าง <code>beautiful</code> <code>stunning</code> <code>high quality</code> <code>8k</code> <code>masterpiece</code> เป็นคำที่คนใส่กันติดนิสัย แต่ลองถามด้วยกลไกข้างบน: <strong>คำพวกนี้ตัดตัวเลือกอะไรทิ้งบ้าง?</strong> คำตอบคือแทบไม่ตัดอะไรเลย เพราะไม่มีภาพไหนในหัวโมเดลที่ตั้งใจจะ "ไม่สวย" อยู่แล้ว มันเลยเป็นคำที่ฟังดูหนักแต่ไม่มีน้ำหนัก</p>
+  <p>เทียบกับ <code>wide horizontal crop, subject on the left, clean negative space on the right</code> — สามวลีนี้ตัดภาพที่เป็นไปได้ทิ้งไปเกือบทั้งกอง เหลือเฉพาะภาพที่วางหัวข้อเว็บได้จริง · <strong>นี่คือความต่างระหว่างคำที่บรรยายกับคำที่บังคับ</strong></p>
+
+  <h3>1.3 สามอาการยอดฮิต มาจากกลไกเดียวกันทั้งหมด</h3>
+  <table>
+    <tr><th style="width:27%">อาการ</th><th style="width:33%">ช่องที่ถูกเว้นว่างไว้</th><th>หมุดที่ปิดช่องนั้น</th></tr>
+    <tr><td><b>ดูเหมือน stock photo</b></td><td>ไม่ได้บอกว่าอยากได้ความ "ไม่เพอร์เฟ็กต์" แบบไหน ค่ากลางของภาพสวยจึงชนะ</td><td><code>natural candid moment</code>, <code>imperfect everyday detail</code>, <code>less staged</code></td></tr>
+    <tr><td><b>สวยแต่วางข้อความไม่ลง</b></td><td>ไม่ได้บอกว่าภาพนี้ต้องรองรับอะไรทับข้างบน ค่ากลางจึงจัดตัวแบบไว้กลางเฟรม</td><td><code>clean negative space on the right for headline</code></td></tr>
+    <tr><td><b>มีตัวหนังสือ/โลโก้มั่ว</b></td><td>ไม่ได้บอกว่าห้ามมี ค่ากลางของ "ร้าน" คือร้านที่มีป้าย</td><td><code>no readable text, no signage, no logos, no watermark</code></td></tr>
+  </table>
+  <p>สังเกตว่าทั้งสามแถวไม่ได้แก้ด้วยการ "ขอให้สวยขึ้น" แต่แก้ด้วยการ<strong>ระบุช่องที่เคยปล่อยว่าง</strong> — ทั้งเล่มนี้จะทำแบบเดียวกันซ้ำ ๆ เพียงแต่ลึกขึ้นเรื่อย ๆ</p>
+
+  <h3>1.4 แผนที่ของเล่มนี้</h3>
+  <p>ทุกบทที่เหลือคือคำตอบของคำถามเดียว: <strong>ช่องไหนคุ้มค่าจะปักหมุด และปักด้วยคำว่าอะไร</strong></p>
+  <ul>
+    <li><strong>บทที่ 2</strong> กางแผงหมุดทั้งชุดให้ดูว่ามีกี่ช่อง แบ่งเป็นกี่หมวด</li>
+    <li><strong>บทที่ 3–5</strong> สอนว่าคำไหนมีน้ำหนักจริง และภาพนี้ต้องไปทำหน้าที่อะไรต่อ</li>
+    <li><strong>บทที่ 6–8</strong> ไขปริศนาที่กวนใจที่สุด — <em>ทำไมสั่งแก้แค่แสง แต่หน้าคนในภาพดันเปลี่ยนไปด้วย</em></li>
+    <li><strong>บทที่ 9</strong> ไขว่าทำไมตัวหนังสือในภาพถึงสะกดผิดบ่อย ทั้งที่ส่วนอื่นสมจริงมาก — คำตอบมาจากกลไกค่ากลางข้อเดิมนี่เอง</li>
+    <li><strong>บทที่ 11–12</strong> เปลี่ยนทั้งหมดเป็นตารางวินิจฉัยและ checklist ที่ใช้ตอนส่งงานจริง</li>
+  </ul>
+
+  <div class="note"><span class="t">สรุปบทที่ 1</span>ภาพหนึ่งใบต้องตอบทุกคำถามให้ครบ — ช่องที่คุณไม่ตอบ โมเดลตอบแทนด้วยค่ากลางเสมอ · prompt คือชุดข้อจำกัด ไม่ใช่คำบรรยาย · คำสวย (8k, masterpiece) ไม่ตัดตัวเลือกจึงไม่มีน้ำหนัก ส่วนคำที่ระบุมุมกล้อง/ตำแหน่ง/ข้อห้ามตัดได้จริง · อาการยอดฮิตทั้งสามอย่างคือช่องว่างคนละช่องของกลไกเดียวกัน</div>
+  <div class="chapter-end">· · ·</div>
+</section>
+
+<!-- ============================ CH2 ============================ -->
+<section class="chapter" id="ch2">
+  <span class="alias" id="formula"></span>
+  <div class="ch-head">
+    <div class="row"><div class="num">02</div><h2>กายวิภาคของ brief — แผงหมุดทั้ง 13 ช่อง</h2></div>
+    <span class="chip" style="background:var(--l0-soft);color:var(--l0)">LEVEL 0 · ปูพื้น</span>
+  </div>
+
+  <p>ถ้า prompt คือชุดหมุด คำถามถัดไปคือ <strong>แผงหมุดหน้าตาเป็นยังไง มีกี่ช่อง</strong> — บทนี้กางให้ดูทั้งแผง แล้วจัดเป็น 4 หมวดที่จำง่าย ทุกบทหลังจากนี้จะอ้างกลับมาที่แผงนี้ตลอด</p>
+
+  <h3>2.1 สี่หมวด สี่คำถาม</h3>
+  <p>13 ช่องนี้ไม่ได้เท่ากันหมด มันเรียงตามลำดับอิทธิพล — หมวด ก. เปลี่ยนภาพทั้งใบ ส่วนหมวด ง. เก็บรายละเอียดปลายทาง</p>
+
+  <figure class="fig">
+    <svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="แผงหมุดสี่หมวดเรียงจากบนลงล่าง หมวด ก ภาพนี้ทำหน้าที่อะไร ประกอบด้วย use case และ asset type หมวด ข ในภาพมีอะไร ประกอบด้วย primary request scene และ subject กับ action หมวด ค มองมันยังไง ประกอบด้วย style composition lighting color และ materials หมวด ง อะไรห้ามพลาด ประกอบด้วย text verbatim constraints และ avoid ทั้งสี่หมวดถูกส่งเข้าไปรวมกันเป็นภาพหนึ่งใบ ช่องที่ไม่ได้ตอบโมเดลจะตอบแทน">
+      <rect x="34" y="18" width="300" height="52" rx="9" fill="#0a5048"/>
+      <text x="184" y="40" text-anchor="middle" class="lbl-w" font-size="12">ก · ภาพนี้ทำหน้าที่อะไร</text>
+      <text x="184" y="58" text-anchor="middle" class="sub-w">Use case · Asset type</text>
+      <rect x="34" y="76" width="300" height="52" rx="9" fill="#0e6e63"/>
+      <text x="184" y="98" text-anchor="middle" class="lbl-w" font-size="12">ข · ในภาพมีอะไร</text>
+      <text x="184" y="116" text-anchor="middle" class="sub-w">Primary request · Scene · Subject + action</text>
+      <rect x="34" y="134" width="300" height="52" rx="9" fill="#c07415"/>
+      <text x="184" y="156" text-anchor="middle" class="lbl-w" font-size="12">ค · มองมันยังไง</text>
+      <text x="184" y="174" text-anchor="middle" class="sub-w">Style · Composition · Lighting · Color · Materials</text>
+      <rect x="34" y="192" width="300" height="52" rx="9" fill="#b3402e"/>
+      <text x="184" y="214" text-anchor="middle" class="lbl-w" font-size="12">ง · อะไรห้ามพลาด</text>
+      <text x="184" y="232" text-anchor="middle" class="sub-w">Text verbatim · Constraints · Avoid</text>
+      <text x="184" y="268" text-anchor="middle" class="mono">เรียงจากอิทธิพลมากไปน้อย</text>
+
+      <path d="M 342 131 H 424" class="flow-t" marker-end="url(#ar-t)"/>
+      <text x="383" y="120" text-anchor="middle" class="mono" fill="#0a5048">ประกอบ</text>
+      <rect x="430" y="100" width="182" height="62" rx="10" fill="#26302f"/>
+      <text x="521" y="124" text-anchor="middle" class="lbl-w">ภาพหนึ่งใบ</text>
+      <text x="521" y="143" text-anchor="middle" class="sub-w">ทุกช่องถูกตอบจนครบ</text>
+      <path d="M 521 172 V 202" class="flow-a" marker-end="url(#ar-a)"/>
+      <text x="521" y="222" text-anchor="middle" class="sub" fill="#c07415">ช่องที่คุณไม่ตอบ = โมเดลตอบแทน</text>
+      <text x="521" y="242" text-anchor="middle" class="sub">(บทที่ 1 · ค่ากลาง)</text>
+    </svg>
+    <figcaption><b>FIG 2.1</b> — แผงหมุด 4 หมวด · จำแค่คำถามสี่ข้อนี้ก็พอ: <em>ทำหน้าที่อะไร · มีอะไร · มองยังไง · ห้ามพลาดอะไร</em></figcaption>
+  </figure>
+
+  <div class="prompt-label">▸ Master template — คัดลอกไปตั้งต้นได้เลย</div>
+  <pre><code><span class="ph">$imagegen</span>
+<span class="cm"># ก · ภาพนี้ทำหน้าที่อะไร</span>
+Use case: &lt;photorealistic-natural / product-mockup / ui-mockup / infographic-diagram / logo-brand / illustration-story / identity-preserve / background-extraction&gt;
+Asset type: &lt;ภาพนี้ไปอยู่ที่ไหน เช่น website hero, poster, thumbnail, slide visual&gt;
+
+<span class="cm"># ข · ในภาพมีอะไร</span>
+Primary request: &lt;ภาพหลักที่ต้องการ หนึ่งประโยค&gt;
+Scene/backdrop: &lt;ฉาก สถานที่ บริบท&gt;
+Subject: &lt;ตัวเอก + action ที่กำลังทำ&gt;
+
+<span class="cm"># ค · มองมันยังไง</span>
+Style/medium: &lt;photorealistic editorial photography / 3D render / watercolor / vector-like&gt;
+Composition/framing: &lt;มุมกล้อง ระยะภาพ ตำแหน่งตัวแบบ พื้นที่ว่าง&gt;
+Lighting/mood: &lt;แหล่งแสง เวลา อารมณ์&gt;
+Color palette: &lt;โทนหลัก และสีที่ควรเลี่ยง&gt;
+Materials/textures: &lt;ผิววัสดุที่อยากเห็นจริง ๆ&gt;
+
+<span class="cm"># ง · อะไรห้ามพลาด</span>
+Text (verbatim): "&lt;ข้อความเป๊ะทุกตัวอักษร ถ้ามี&gt;"
 Constraints: &lt;สิ่งที่ต้องมีหรือห้ามเปลี่ยน&gt;
-Avoid: &lt;สิ่งที่ไม่ต้องการ เช่น watermark, logos, extra text unless intentionally requested, fake glossy AI look&gt;</code></pre>
-            </div>
+Avoid: &lt;สิ่งที่ไม่ต้องการ เช่น watermark, logos, extra text, fake glossy AI look&gt;</code></pre>
 
-            <div class="callout">
-              <h3>ประโยคที่ทรงพลังที่สุด</h3>
-              <p><code>Change only &lt;สิ่งที่ต้องแก้&gt;; keep &lt;สิ่งที่ดีอยู่แล้ว&gt; unchanged.</code></p>
-              <p>ใช้ทุกครั้งเวลาแก้ภาพเดิม เพราะมันลด drift และทำให้ Codex รู้ว่าต้องรักษาอะไรไว้</p>
-            </div>
-          </div>
-        </section>
+  <h3>2.2 ไม่ต้องกรอกครบ — กรอกช่องที่ "เดาผิดแล้วงานพัง"</h3>
+  <p>ความเข้าใจผิดที่พบบ่อยคือยิ่งกรอกครบยิ่งดี · จริง ๆ แล้ว prompt ที่ยาวเกินจำเป็นทำให้หมุดสำคัญถูกกลบ ทางที่ถูกคือถามตัวเองทีละช่องว่า <strong>"ถ้ามันเดาช่องนี้ผิด งานพังไหม"</strong> — ถ้าพัง ให้กรอก ถ้าไม่พัง ปล่อยว่างแล้วให้มันเลือกเองอาจได้ของที่ดีกว่าที่เราคิดด้วยซ้ำ</p>
+  <p>ตัวอย่าง: ภาพ hero เว้น <code>Color palette</code> ไว้ได้ (เดาผิดก็แค่โทนเพี้ยน แก้รอบเดียวจบ) แต่เว้น <code>Composition/framing</code> ไม่ได้เด็ดขาด เพราะถ้าตัวแบบมาอยู่กลางเฟรม ภาพนั้นใช้ไม่ได้ทั้งใบตั้งแต่แรก</p>
 
-        <section id="modes">
-          <div class="section-head">
-            <p class="eyebrow">03 / Generate vs Edit</p>
-            <h2>สร้างใหม่กับแก้เดิม ใช้สมองคนละแบบ</h2>
-            <p class="lead">ก่อนเขียน prompt ให้ตัดสินใจก่อนว่าคุณกำลังสร้างภาพใหม่ หรือกำลังแก้ภาพที่มีอยู่ เพราะสิ่งที่ต้องควบคุมไม่เหมือนกัน</p>
-          </div>
+  <div class="use"><span class="t">เคล็ดลับ</span>ถ้ายังตอบไม่ได้ว่า "ภาพนี้เสร็จแล้วหน้าตาเป็นยังไง และไปวางตรงไหน" แปลว่า brief ยังไม่ชัดพอ — เขียน prompt ต่อไปก็เสียเวลาเปล่า ให้กลับไปตอบหมวด ก. ก่อน</div>
 
-          <div class="mode-grid">
-            <article class="mode">
-              <strong>Generate</strong>
-              <span>ใช้เมื่อเริ่มจากศูนย์หรือใช้รูปเป็นแรงบันดาลใจ ระบุ purpose, subject, scene, style, composition และข้อห้ามให้ชัด</span>
-            </article>
-            <article class="mode">
-              <strong>Edit</strong>
-              <span>ใช้เมื่อมีภาพตั้งต้นและต้องรักษาบางส่วนไว้ ระบุว่า change only อะไร และ keep อะไร unchanged ทุกครั้งที่ iterate</span>
-            </article>
-            <article class="mode">
-              <strong>Reference</strong>
-              <span>ใช้เมื่อรูปที่แนบไม่ได้เป็นภาพให้แก้ แต่เป็นตัวอย่าง identity, lighting, mood, layout หรือ texture ต้องบอกบทบาทของแต่ละรูป</span>
-            </article>
-          </div>
-        </section>
+  <h3>2.3 ตัวอย่างจริง — ภาพที่คู่มือเล่มนี้ใช้เอง</h3>
+  <p>ภาพข้างล่างนี้ไม่ใช่ตัวอย่างสมมติ มันคือภาพที่ถูกสร้างจาก prompt ที่อยู่ถัดลงไป และเคยถูกใช้เป็นภาพหัวของคู่มือฉบับก่อนหน้าจริง ๆ</p>
 
-        <section id="usecases">
-          <div class="section-head">
-            <p class="eyebrow">04 / Use Case Map</p>
-            <h2>เลือกชนิดงานก่อนเลือกคำสวย</h2>
-            <p class="lead">Use case ทำให้ระบบเข้าใจมาตรฐานของภาพ เช่น ภาพถ่ายต้องสมจริง โลโก้ต้อง silhouette แข็งแรง อินโฟกราฟิกต้องอ่านง่าย</p>
-          </div>
+  <figure class="fig">
+    <img src="codex-imagegen-guide-assets/coffee-hero-1440.webp" width="1440" height="720" loading="lazy" decoding="async"
+         alt="บาริสต้าในร้านกาแฟเล็ก ๆ กำลังรินน้ำร้อนจากกาคอห่านลงดริปเปอร์ ตัวแบบอยู่ครึ่งซ้ายของภาพ ด้านขวาเป็นหน้าต่างกระจกและแสงถนนยามเช้า เหลือพื้นที่ว่างสำหรับวางหัวข้อ">
+    <figcaption><b>FIG 2.2</b> — สังเกตสามอย่างที่ไม่ได้เกิดขึ้นเอง: ตัวแบบอยู่<b>ครึ่งซ้าย</b> · ครึ่งขวาโล่งพอวางหัวข้อได้ · ไม่มีป้าย ไม่มีโลโก้ ไม่มีตัวหนังสือสักตัว — ทั้งสามอย่างมาจากหมุดสามตัวใน prompt ข้างล่าง</figcaption>
+  </figure>
 
-          <div class="usecase-grid">
-            <article class="usecase">
-              <strong>photorealistic-natural</strong>
-              <span>ภาพถ่าย lifestyle, candid, editorial ใช้ภาษากล้อง แสงจริง texture จริง และความไม่ perfect แบบมนุษย์</span>
-            </article>
-            <article class="usecase">
-              <strong>product-mockup</strong>
-              <span>ภาพสินค้า แพ็กเกจจิ้ง catalog shot ต้องชัดเรื่องวัสดุ เงา ฉลาก และ silhouette</span>
-            </article>
-            <article class="usecase">
-              <strong>ui-mockup</strong>
-              <span>หน้าจอแอปหรือเว็บ ระบุ fidelity, layout, hierarchy และบอกว่าไม่ใช่ concept art</span>
-            </article>
-            <article class="usecase">
-              <strong>infographic-diagram</strong>
-              <span>ภาพอธิบาย มี flow, labels, arrows และ text verbatim ที่ต้องตรวจทุกคำหลังสร้าง</span>
-            </article>
-            <article class="usecase">
-              <strong>logo-brand</strong>
-              <span>สำรวจแนวคิดโลโก้ เน้นเรียบ คม silhouette ดี ใช้เป็น concept ก่อนทำไฟล์ vector จริง</span>
-            </article>
-            <article class="usecase">
-              <strong>illustration-story</strong>
-              <span>ภาพเล่าเรื่อง comic, children's book, narrative scene ต้องระบุ action และ scene beat ให้ชัด</span>
-            </article>
-          </div>
-        </section>
-
-        <section id="glossary">
-          <div class="section-head">
-            <p class="eyebrow">05 / Glossary</p>
-            <h2>ศัพท์ที่ต้องรู้ก่อนสั่งภาพ</h2>
-            <p class="lead">คำเหล่านี้ช่วยให้คุณคุยกับ Codex แม่นขึ้น ถ้ารู้ความหมาย คุณจะควบคุมภาพได้ละเอียดกว่าเดิม</p>
-          </div>
-
-          <div class="glossary-grid">
-            <article class="glossary">
-              <strong><code>brief</code></strong>
-              <span>โจทย์ย่อของภาพ บอกเป้าหมาย ผู้ชม บริบท และข้อจำกัด</span>
-            </article>
-            <article class="glossary">
-              <strong><code>asset</code></strong>
-              <span>ไฟล์ภาพที่นำไปใช้จริง เช่น hero, thumbnail, icon, poster หรือ slide visual</span>
-            </article>
-            <article class="glossary">
-              <strong><code>iterate</code></strong>
-              <span>แก้เป็นรอบ ๆ โดยล็อกสิ่งที่ดี แล้วเปลี่ยนทีละเรื่อง</span>
-            </article>
-            <article class="glossary">
-              <strong><code>negative space</code></strong>
-              <span>พื้นที่ว่างในภาพที่ใช้วาง headline, ปุ่ม หรือ UI โดยไม่ชน subject หลัก</span>
-            </article>
-            <article class="glossary">
-              <strong><code>invariant</code></strong>
-              <span>สิ่งที่ห้ามเปลี่ยนตอนแก้ภาพ เช่น หน้าเดิม pose เดิม camera angle เดิม</span>
-            </article>
-            <article class="glossary">
-              <strong><code>silhouette</code></strong>
-              <span>รูปทรงรวมของวัตถุ ถ้า silhouette แข็งแรง คนจะจำ subject ได้แม้เห็นเป็นเงาดำ</span>
-            </article>
-            <article class="glossary">
-              <strong><code>fidelity</code></strong>
-              <span>ระดับความสมจริงหรือความละเอียดของ mockup เช่น low-fi wireframe หรือ shippable UI</span>
-            </article>
-            <article class="glossary">
-              <strong><code>color grading</code></strong>
-              <span>การปรับโทนสีรวมของภาพให้มี mood เดียวกัน เช่น อุ่น นิ่ง สด หรือ cinematic</span>
-            </article>
-            <article class="glossary">
-              <strong><code>verbatim</code></strong>
-              <span>ข้อความที่ต้องแสดงตรงตัวทุกตัวอักษร เหมาะกับป้าย tagline และ label ใน infographic</span>
-            </article>
-          </div>
-        </section>
-
-        <section id="workflow">
-          <div class="section-head">
-            <p class="eyebrow">06 / Iteration</p>
-            <h2>ทำเป็น 3 รอบ ไม่ใช่หวังจบรอบเดียว</h2>
-            <p class="lead">ภาพที่ดีมักเกิดจากการล็อกสิ่งที่ถูกแล้วแก้สิ่งที่ยังไม่ใช่ทีละเรื่อง</p>
-          </div>
-
-          <div class="workflow">
-            <article class="step">
-              <div class="step-label">Round 1</div>
-              <div>
-                <h3>สร้าง direction</h3>
-                <p>เริ่มจาก brief ที่ชัดแต่ไม่แน่นเกินไป เพื่อดู mood, composition, subject และความรู้สึกโดยรวม</p>
-              </div>
-            </article>
-            <article class="step">
-              <div class="step-label">Round 2</div>
-              <div>
-                <h3>ล็อกสิ่งที่ดี</h3>
-                <p>บอกให้เก็บ composition, subject, pose, lighting direction หรือ texture ที่ชอบไว้ แล้วแก้เพียงหนึ่งอย่าง</p>
-              </div>
-            </article>
-            <article class="step">
-              <div class="step-label">Round 3</div>
-              <div>
-                <h3>ทำ production pass</h3>
-                <p>ตรวจ no watermark, no logo, no extra text, readable labels, negative space, edge quality และความเหมาะกับพื้นที่ที่จะนำไปใช้</p>
-              </div>
-            </article>
-          </div>
-        </section>
-
-        <section id="examples">
-          <div class="section-head">
-            <p class="eyebrow">07 / Ready Prompts</p>
-            <h2>ตัวอย่างพร้อมคัดลอก</h2>
-            <p class="lead">เริ่มจากตัวอย่างเหล่านี้ แล้วแทน subject, สถานที่, โทน และข้อจำกัดให้ตรงกับงานของคุณ ตัวอย่างตั้งใจให้หลากหลายกว่างานกาแฟอย่างเดียว</p>
-          </div>
-
-          <div class="code-panel">
-            <div class="code-bar">
-              <span>Website Hero Image</span>
-              <button class="copy-button" type="button" data-copy="hero-prompt" aria-label="Copy website hero prompt">Copy</button>
-            </div>
-            <pre id="hero-prompt"><code>$imagegen
+  <div class="prompt-label">▸ prompt ที่สร้างภาพข้างบน</div>
+  <pre><code><span class="ph">$imagegen</span>
 Use case: photorealistic-natural
 Asset type: website hero image
 Primary request: cozy independent coffee shop in Bangkok during early morning
 Scene/backdrop: small warm cafe interior with soft street light through glass windows
 Subject: barista preparing pour-over coffee, natural candid moment
 Style/medium: photorealistic editorial photography
-Composition/framing: wide horizontal crop, subject on the left, clean negative space on the right for website headline
+Composition/framing: <span class="gd">wide horizontal crop, subject on the left, clean negative space on the right for website headline</span>
 Lighting/mood: soft morning light, warm but realistic, gentle shadows
 Color palette: warm wood, muted green plants, cream walls, black coffee equipment
 Materials/textures: real wood grain, ceramic cup, glass dripper, metal kettle, worn apron fabric
-Constraints: no logos, no readable brand names, no watermark, no extra text
-Avoid: overly staged advertising look, fake glossy AI look</code></pre>
-          </div>
+Constraints: <span class="gd">no logos, no readable brand names, no watermark, no extra text</span>
+Avoid: <span class="bd">overly staged advertising look, fake glossy AI look</span></code></pre>
 
-          <div class="code-panel">
-            <div class="code-bar">
-              <span>Product Mockup</span>
-              <button class="copy-button" type="button" data-copy="product-prompt" aria-label="Copy product mockup prompt">Copy</button>
-            </div>
-            <pre id="product-prompt"><code>$imagegen
+  <p>ลองไล่ทีละหมุดว่ามันไปโผล่ตรงไหนในภาพ:</p>
+  <table>
+    <tr><th style="width:38%">หมุดใน prompt</th><th>ผลที่เห็นในภาพ</th></tr>
+    <tr><td><code>subject on the left</code> + <code>negative space on the right</code></td><td>บาริสต้าอยู่ครึ่งซ้าย ครึ่งขวาเป็นหน้าต่างโล่ง ๆ — วางหัวข้อทับได้ทันทีโดยไม่บังหน้าใคร</td></tr>
+    <tr><td><code>natural candid moment</code> + <code>Avoid: overly staged</code></td><td>เขาก้มมองน้ำที่รินอยู่ ไม่ได้หันมายิ้มให้กล้อง ซึ่งเป็นท่ามาตรฐานของ stock photo</td></tr>
+    <tr><td><code>no logos, no readable brand names</code></td><td>ถ้วยและอุปกรณ์ทุกชิ้นเรียบ ไม่มีแบรนด์ ไม่มีป้ายร้าน — ใช้ในงานที่มีแบรนด์ตัวเองได้เลย</td></tr>
+    <tr><td><code>worn apron fabric</code>, <code>real wood grain</code></td><td>ผ้ากันเปื้อนมีรอยยับจริง ไม้เคาน์เตอร์มีลายและรอยใช้งาน — คือสิ่งที่ดึงภาพออกจากลุคพลาสติกมันวาว</td></tr>
+  </table>
+
+  <div class="note"><span class="t">สรุปบทที่ 2</span>แผงหมุดมี 13 ช่อง จัดเป็น 4 หมวด: ทำหน้าที่อะไร · มีอะไร · มองยังไง · ห้ามพลาดอะไร · หมวดต้น ๆ มีอิทธิพลมากกว่าหมวดท้าย · ไม่ต้องกรอกครบ ให้กรอกเฉพาะช่องที่ "เดาผิดแล้วงานพัง" · ภาพตัวอย่างจริงพิสูจน์ว่าคุณสมบัติที่ใช้งานได้ (พื้นที่วางหัวข้อ ไม่มีโลโก้ ไม่จัดฉาก) มาจากหมุดตรง ๆ ไม่ได้มาจากโชค</div>
+  <div class="chapter-end">· · ·</div>
+</section>
+
+<!-- ============================ CH3 ============================ -->
+<section class="chapter" id="ch3">
+  <div class="ch-head">
+    <div class="row"><div class="num">03</div><h2>คำที่มีน้ำหนักจริง — กล้อง แสง วัสดุ</h2></div>
+    <span class="chip" style="background:var(--l1-soft);color:var(--l1)">LEVEL 1 · ปักหมุดให้แม่น</span>
+  </div>
+
+  <p>รู้แล้วว่าต้องปักหมุด คำถามต่อไปคือ <strong>ปักด้วยคำว่าอะไร</strong> · บทนี้คือคลังคำที่ตัดตัวเลือกได้จริง แบ่งเป็นสี่แกน — และที่สำคัญกว่านั้นคือมันจะบอกด้วยว่าคำไหน<em>ไม่</em>ควรเสียที่ว่างให้</p>
+
+  <h3>3.1 ภาษากล้อง — ล็อกว่าจะมองจากตรงไหน</h3>
+  <table>
+    <tr><th style="width:32%">คำ</th><th>ปักหมุดอะไร · ใช้ตอนไหน</th></tr>
+    <tr><td><code>wide crop</code> / <code>wide horizontal crop</code></td><td>ภาพกว้าง เห็นบริบทรอบตัว — มาตรฐานของ hero เว็บ เพราะมีที่ให้วางข้อความ</td></tr>
+    <tr><td><code>close-up</code> / <code>macro</code></td><td>เข้าไปติดผิววัสดุ ใช้เวลาอยากขายรายละเอียด เช่น ผิวเซรามิก ฟองครีม เนื้อผ้า</td></tr>
+    <tr><td><code>top-down</code> / <code>flat lay</code></td><td>มองจากบนลงล่าง ใช้กับของวางบนโต๊ะ เมนู หรือชุดอุปกรณ์</td></tr>
+    <tr><td><code>three-quarter angle</code></td><td>เห็นสองด้านของวัตถุพร้อมกัน — ท่ามาตรฐานของภาพสินค้าเพราะบอกรูปทรงได้ดีที่สุด</td></tr>
+    <tr><td><code>eye level</code> / <code>low angle</code></td><td>ระดับสายตาให้ความรู้สึกเป็นกันเอง มุมต่ำให้ความรู้สึกใหญ่และมีอำนาจ</td></tr>
+    <tr><td><code>shallow depth of field</code></td><td>ฉากหลังเบลอ ดึงสายตามาที่ตัวแบบ — ใช้กลบพื้นหลังที่คุมไม่ได้</td></tr>
+    <tr><td><code>generous padding</code></td><td>เผื่อขอบรอบวัตถุ ไว้ crop ทีหลังได้หลายอัตราส่วนโดยไม่บาดของ</td></tr>
+  </table>
+
+  <h3>3.2 แสง — แกนที่เปลี่ยนอารมณ์ได้มากที่สุดด้วยคำน้อยที่สุด</h3>
+  <p>ถ้าจะเลือกปักหมุดได้แค่ช่องเดียวนอกจาก composition ให้เลือกแสง เพราะมันเปลี่ยนอารมณ์ทั้งภาพด้วยคำสองสามคำ</p>
+  <ul>
+    <li><code>soft morning light</code> — นุ่ม เงาอ่อน อบอุ่นแบบไม่จัดจ้าน เหมาะกับงาน lifestyle</li>
+    <li><code>hard midday sun</code> — เงาคม คอนทราสต์สูง ให้ความรู้สึกจริงจังหรือแห้งแล้ง</li>
+    <li><code>golden hour, backlit</code> — ย้อนแสงตอนเย็น ได้ขอบเรืองรอบตัวแบบ ดูโรแมนติก</li>
+    <li><code>softbox lighting, controlled highlights</code> — แสงสตูดิโอ คุมได้ สะอาด มาตรฐานภาพสินค้า</li>
+    <li><code>practical lights only</code> — ใช้เฉพาะแสงที่มีอยู่ในฉากจริง เช่น โคมไฟ ป้ายไฟ ให้ความรู้สึกเป็นภาพที่ถ่ายมาจริง</li>
+  </ul>
+
+  <h3>3.3 วัสดุ — หมุดที่คนลืมบ่อยที่สุด แต่ให้ผลคุ้มที่สุด</h3>
+  <p>ค่ากลางของ "ภาพสวย" มักออกมาเรียบเนียนเกินจริง ผิวทุกอย่างมันวาวเหมือนพลาสติก · วิธีดึงกลับไม่ใช่การบอกว่า "ให้ดูสมจริง" (คำนี้ไม่ตัดตัวเลือกอะไรเลย) แต่คือ<strong>เรียกชื่อวัสดุกับร่องรอยการใช้งานตรง ๆ</strong></p>
+  <p>เทียบกัน: <code>realistic wooden table</code> เทียบกับ <code>uneven wood grain with small scratches and a matte worn finish</code> — อันหลังบังคับให้ภาพมีร่องรอยที่ค่ากลางจะไม่ใส่มาให้</p>
+  <p>คำที่ใช้ได้ทันที: <code>matte ceramic</code> · <code>brushed metal</code> · <code>worn fabric</code> · <code>uneven wood grain</code> · <code>subtle glaze variation</code> · <code>soft dust in the light</code> · <code>fingerprint-free but not sterile</code></p>
+
+  <div class="use"><span class="t">เคล็ดลับ</span>งานที่บอกว่า "ภาพดู AI จัง" แก้ได้เร็วที่สุดด้วยการเติมหมวดวัสดุกับความไม่เพอร์เฟ็กต์ ไม่ใช่การเพิ่มคำว่า realistic — เพราะ realistic คือคำที่ไม่มีน้ำหนักตามบทที่ 1</div>
+
+  <h3>3.4 คำที่ไม่มีน้ำหนัก — เลิกใส่ได้เลย</h3>
+  <p>คำกลุ่มนี้ตกทอดมาจากยุคเครื่องมือรุ่นก่อน คนใส่ต่อ ๆ กันมาจนเป็นนิสัย:</p>
+  <p><code>8k</code> · <code>4k</code> · <code>ultra detailed</code> · <code>masterpiece</code> · <code>award winning</code> · <code>trending</code> · <code>professional</code> · <code>high quality</code></p>
+  <p>ทดสอบด้วยคำถามเดิม: <em>มันตัดภาพแบบไหนทิ้งบ้าง?</em> — ไม่ตัดอะไรเลย เพราะไม่มีภาพไหนที่โมเดลตั้งใจสร้างให้ห่วย · ที่แย่กว่าคือมันกินพื้นที่ความสนใจของ prompt ไปจากหมุดที่ควรได้ความสนใจจริง ๆ</p>
+
+  <div class="note"><span class="t">💡 ทำไมคำเดียวกันได้ผลไม่เท่ากันในแต่ละงาน</span>คำมีน้ำหนักมากหรือน้อย ขึ้นกับว่ามันตัดตัวเลือกใน<em>บริบทนั้น</em>ได้เยอะแค่ไหน · <code>shallow depth of field</code> ทรงพลังมากในภาพถ่าย แต่แทบไม่มีความหมายเลยในงาน <code>infographic-diagram</code> ที่ทุกอย่างต้องคมเท่ากันหมด</div>
+
+  <div class="note"><span class="t">สรุปบทที่ 3</span>คำมีน้ำหนักเมื่อมันตัดตัวเลือกได้ · สี่แกนที่คุ้มที่สุดคือ มุมกล้อง · แสง · วัสดุ · พื้นที่ว่าง · แสงคือแกนที่เปลี่ยนอารมณ์มากที่สุดต่อจำนวนคำ · วัสดุคือหมุดที่คนลืมบ่อยที่สุดและเป็นตัวแก้อาการ "ดู AI" ได้ตรงจุดที่สุด · คำอย่าง 8k, masterpiece ไม่ตัดอะไรเลย ตัดทิ้งได้</div>
+  <div class="chapter-end">· · ·</div>
+</section>
+
+<!-- ============================ CH4 ============================ -->
+<section class="chapter" id="ch4">
+  <span class="alias" id="usecases"></span>
+  <div class="ch-head">
+    <div class="row"><div class="num">04</div><h2>Use case — สวิตช์ที่เปลี่ยนค่ากลางทั้งชุด</h2></div>
+    <span class="chip" style="background:var(--l1-soft);color:var(--l1)">LEVEL 1 · ปักหมุดให้แม่น</span>
+  </div>
+
+  <p>บทที่ 3 ว่าด้วยการปักหมุดทีละตัว · บทนี้ว่าด้วยหมุดตัวเดียวที่<strong>ขยับหมุดที่เหลือทั้งแผงพร้อมกัน</strong></p>
+
+  <h3>4.1 ทำไมบรรทัดเดียวถึงเปลี่ยนภาพทั้งใบ</h3>
+  <p>ย้อนกลับไปที่กลไกบทที่ 1: ช่องที่ไม่ระบุจะถูกเติมด้วยค่ากลาง · <strong>แต่ "ค่ากลาง" ของอะไร?</strong> — ตรงนี้แหละที่ use case เข้ามาทำงาน · เมื่อคุณเขียน <code>Use case: product-mockup</code> คุณไม่ได้เพิ่มรายละเอียดหนึ่งอย่าง คุณกำลัง<strong>สลับกองอ้างอิงทั้งกอง</strong>ที่มันจะใช้เดาช่องที่เหลือ</p>
+  <p>ผลคือ: แสงเปลี่ยนจากแสงธรรมชาติเป็นสตูดิโอเอง · พื้นหลังเปลี่ยนจากฉากจริงเป็นพื้นเรียบเอง · ความคมของขอบวัตถุถูกยกระดับขึ้นเอง — โดยที่คุณไม่ได้สั่งสักช่อง</p>
+  <blockquote>หมุดตัวอื่นตัดตัวเลือกในกองเดิม แต่ use case เปลี่ยนกองที่จะเลือก</blockquote>
+  <p>เพราะแบบนี้ use case จึงควรเป็น<strong>บรรทัดแรกเสมอ</strong> และเป็นสิ่งแรกที่ควรกลับมาสงสัยเวลาภาพออกมาผิดแนวทั้งใบ</p>
+
+  <h3>4.2 แปดชนิดงานที่ครอบคลุมเกือบทุกงานจริง</h3>
+  <p>แต่ละชนิดข้างล่างตอบสามคำถามเหมือนกันหมด: <strong>(ก) ใช้เมื่อไหร่ · (ข) มันเปลี่ยนค่ากลางเป็นอะไร · (ค) ช่องไหนห้ามเว้นว่าง</strong></p>
+
+  <div class="uc">
+    <h4>photorealistic-natural</h4>
+    <div class="r">
+      <span class="k">ใช้เมื่อ</span><span>ต้องการภาพที่ดูเหมือนถ่ายมาจริง — lifestyle, candid, editorial, ภาพประกอบบทความ</span>
+      <span class="k">ค่ากลาง</span><span>สลับไปหาภาพถ่ายจริง แสงจริง texture จริง และความไม่เพอร์เฟ็กต์แบบมนุษย์ แทนภาพเรนเดอร์เนียน ๆ</span>
+      <span class="k">ห้ามเว้น</span><span><code>Composition/framing</code> และ <code>Lighting/mood</code> — สองช่องนี้คือสิ่งที่แยกภาพถ่ายจริงออกจากภาพโฆษณา</span>
+    </div>
+  </div>
+
+  <div class="uc">
+    <h4>product-mockup</h4>
+    <div class="r">
+      <span class="k">ใช้เมื่อ</span><span>ภาพสินค้า แพ็กเกจจิ้ง catalog shot ภาพประกอบหน้า landing page</span>
+      <span class="k">ค่ากลาง</span><span>สลับไปหาภาพสตูดิโอ: พื้นหลังเรียบ แสงคุมได้ เงาสะอาด ขอบวัตถุคม</span>
+      <span class="k">ห้ามเว้น</span><span><code>Materials/textures</code> (วัสดุคือตัวสินค้า) และ <code>generous padding</code> ใน framing เผื่อ crop หลายอัตราส่วน</span>
+    </div>
+  </div>
+
+  <div class="uc">
+    <h4>ui-mockup</h4>
+    <div class="r">
+      <span class="k">ใช้เมื่อ</span><span>หน้าจอแอปหรือเว็บสำหรับพรีเซนต์ไอเดีย ไม่ใช่ไฟล์ดีไซน์จริง</span>
+      <span class="k">ค่ากลาง</span><span>สลับไปหาหน้าจอที่มีลำดับชั้นชัดและองค์ประกอบ UI จริง แทน concept art ฟุ้ง ๆ ที่กดใช้ไม่ได้</span>
+      <span class="k">ห้ามเว้น</span><span>ระดับความละเอียด (<code>low-fi wireframe</code> หรือ <code>shippable UI</code>) และคำสั่งกำกับว่า <code>not concept art</code></span>
+    </div>
+  </div>
+
+  <div class="uc">
+    <h4>infographic-diagram</h4>
+    <div class="r">
+      <span class="k">ใช้เมื่อ</span><span>ภาพอธิบายกระบวนการ มีลูกศร มีป้ายกำกับ ใช้ในสไลด์หรือโปสเตอร์ความรู้</span>
+      <span class="k">ค่ากลาง</span><span>สลับไปหางานกราฟิกที่เรียบและอ่านง่าย ทุกอย่างคมเท่ากัน ไม่มีระยะชัดตื้น</span>
+      <span class="k">ห้ามเว้น</span><span><code>Text (verbatim)</code> ทุกคำ — และต้องตรวจการสะกดด้วยตาทุกครั้งหลังสร้าง (บทที่ 9)</span>
+    </div>
+  </div>
+
+  <div class="uc">
+    <h4>logo-brand</h4>
+    <div class="r">
+      <span class="k">ใช้เมื่อ</span><span>สำรวจแนวคิดโลโก้เพื่อเอาไปคุยกับดีไซเนอร์ต่อ ไม่ใช่ไฟล์ส่งงานจริง</span>
+      <span class="k">ค่ากลาง</span><span>สลับไปหางานที่เรียบ คม รูปทรงรวมแข็งแรง แทนภาพประกอบที่มีรายละเอียดเยอะ</span>
+      <span class="k">ห้ามเว้น</span><span>ข้อกำกับว่าต้องอ่านออกตอนย่อเล็ก และ <code>flat, no gradient mesh, no photographic detail</code></span>
+    </div>
+  </div>
+
+  <div class="uc">
+    <h4>illustration-story</h4>
+    <div class="r">
+      <span class="k">ใช้เมื่อ</span><span>ภาพเล่าเรื่อง หนังสือเด็ก คอมิก ฉากประกอบนิทาน</span>
+      <span class="k">ค่ากลาง</span><span>สลับไปหางานวาด สไตล์คงเส้นคงวา ตัวละครอ่านออกง่าย</span>
+      <span class="k">ห้ามเว้น</span><span><code>Subject</code> ต้องมี action และจังหวะของฉาก — ภาพเล่าเรื่องที่ตัวละครยืนเฉย ๆ คือภาพที่เล่าเรื่องไม่ได้</span>
+    </div>
+  </div>
+
+  <div class="uc">
+    <h4>identity-preserve</h4>
+    <div class="r">
+      <span class="k">ใช้เมื่อ</span><span>ต้องใช้ตัวละครหรือบุคคลเดิมข้ามหลายภาพ เช่น ซีรีส์ภาพประกอบ หรือคาแรกเตอร์ประจำแบรนด์</span>
+      <span class="k">ค่ากลาง</span><span>สลับไปหาการยึดหน้าตา ทรงผม สัดส่วน และสไตล์จากภาพอ้างอิง แทนการออกแบบตัวละครใหม่ทุกครั้ง</span>
+      <span class="k">ห้ามเว้น</span><span>รายการสิ่งที่ต้องรักษาไว้แบบระบุชื่อ และเรื่องสิทธิ์ในภาพต้นทาง (บทที่ 10)</span>
+    </div>
+  </div>
+
+  <div class="uc">
+    <h4>background-extraction</h4>
+    <div class="r">
+      <span class="k">ใช้เมื่อ</span><span>ต้องการวัตถุชิ้นเดียวไปแปะบนพื้นหลังอื่น เช่น sticker, ไอคอนประกอบเว็บ, องค์ประกอบในสไลด์</span>
+      <span class="k">ค่ากลาง</span><span>สลับไปหาวัตถุเดี่ยวบนพื้นสีเดียวล้วน ขอบคม ไม่มีเงาตกกระทบให้ต้องมานั่งลบ</span>
+      <span class="k">ห้ามเว้น</span><span>สีพื้นหลังที่เจาะจง และข้อห้ามเรื่องเงา ไล่เฉด พื้นวางของ และการสะท้อน</span>
+    </div>
+  </div>
+
+  <div class="warn"><span class="t">กับดักที่เจอบ่อย</span>เลือก use case ผิดแล้วไปนั่งแก้ที่ช่องอื่นทีละช่อง = สู้กับค่ากลางทั้งกองด้วยหมุดทีละตัว · ถ้าภาพผิดแนว<em>ทั้งใบ</em> ให้กลับไปแก้บรรทัดแรกก่อนเสมอ อย่าเพิ่งไปยุ่งกับ Lighting หรือ Color</div>
+
+  <div class="note"><span class="t">สรุปบทที่ 4</span>use case ไม่ใช่หมุดธรรมดา มันสลับกองอ้างอิงที่โมเดลใช้เดาช่องที่เหลือทั้งหมด · จึงควรเป็นบรรทัดแรก และเป็นที่แรกที่ต้องสงสัยเมื่อภาพผิดแนวทั้งใบ · แปดชนิดงานครอบคลุมงานจริงเกือบทั้งหมด แต่ละชนิดมีช่องที่ห้ามเว้นว่างต่างกัน</div>
+  <div class="chapter-end">· · ·</div>
+</section>
+
+<!-- ============================ CH5 ============================ -->
+<section class="chapter" id="ch5">
+  <div class="ch-head">
+    <div class="row"><div class="num">05</div><h2>ภาพนี้ต้องไปอยู่ตรงไหน — คิดแบบคนทำ asset</h2></div>
+    <span class="chip" style="background:var(--l1-soft);color:var(--l1)">LEVEL 1 · ปักหมุดให้แม่น</span>
+  </div>
+
+  <p>ภาพที่ "สวย" กับภาพที่ "ใช้งานได้" เป็นคนละเรื่องกันสนิท และความต่างเกือบทั้งหมดอยู่ที่ช่อง <code>Asset type</code> ที่คนข้ามบ่อยที่สุด</p>
+
+  <h3>5.1 ปลายทางเป็นตัวกำหนดองค์ประกอบ</h3>
+  <p>ภาพใบเดียวกันเป๊ะ ๆ อาจใช้ได้ดีมากบนโปสเตอร์แต่ใช้ไม่ได้เลยบนเว็บ เพราะปลายทางแต่ละแบบมีข้อบังคับคนละชุด:</p>
+  <table>
+    <tr><th style="width:22%">ปลายทาง</th><th style="width:26%">ข้อบังคับที่แท้จริง</th><th>สิ่งที่ต้องระบุใน prompt</th></tr>
+    <tr><td><b>Website hero</b></td><td>มีข้อความกับปุ่มทับอยู่ข้างบน และจะถูก crop ต่างกันบนมือถือกับจอใหญ่</td><td><code>wide horizontal crop</code>, <code>subject on the left</code>, <code>clean negative space on the right</code></td></tr>
+    <tr><td><b>Thumbnail</b></td><td>ถูกย่อเหลือกว้างไม่กี่ร้อยพิกเซล ต้องอ่านออกตอนเล็ก</td><td><code>single clear focal point</code>, <code>strong silhouette</code>, <code>high contrast between subject and background</code></td></tr>
+    <tr><td><b>Poster</b></td><td>คนดูจากไกล มีลำดับการมองชัดเจน</td><td><code>vertical layout</code>, <code>one dominant subject</code>, <code>clear top-to-bottom reading order</code></td></tr>
+    <tr><td><b>Slide visual</b></td><td>ต้องเสริมสไลด์ ไม่ใช่แย่งความสนใจจากข้อความบนสไลด์</td><td><code>calm background</code>, <code>low visual noise</code>, <code>muted palette</code></td></tr>
+    <tr><td><b>Sticker / ไอคอน</b></td><td>ต้องแยกออกจากพื้นหลังได้สะอาด</td><td>ใช้ <code>background-extraction</code> พร้อมสีพื้นหลังเจาะจงและข้อห้ามเรื่องเงา</td></tr>
+  </table>
+
+  <h3>5.2 Negative space ไม่ใช่ "ที่ว่าง" แต่คือ "ที่จอง"</h3>
+  <div class="note"><span class="t">💡 negative space</span>พื้นที่ในภาพที่ตั้งใจปล่อยโล่ง เพื่อให้มีที่วางหัวข้อ ปุ่ม หรือ UI ทับได้โดยไม่บังตัวแบบ · มันไม่ใช่ที่เหลือ แต่เป็นที่ที่<strong>จองไว้ล่วงหน้า</strong>ตั้งแต่ตอนสั่งภาพ</div>
+  <p>วิธีสั่งที่ได้ผล ต้องบอกสามอย่างพร้อมกัน: <strong>ด้านไหน · โล่งแค่ไหน · เอาไว้ทำอะไร</strong></p>
+  <p>เทียบกัน — <code>leave some space</code> (โมเดลไม่รู้ว่าด้านไหนหรือเท่าไหร่ จึงกลับไปหาค่ากลางคือจัดกลาง) เทียบกับ <code>clean negative space on the right third for a headline, keep it free of props and busy texture</code></p>
+
+  <h3>5.3 เผื่อ crop ไว้ตั้งแต่แรก</h3>
+  <p>ภาพหนึ่งใบบนเว็บจริงมักถูกใช้หลายอัตราส่วน — จอใหญ่เห็นเต็ม มือถือถูกตัดเหลือเกือบจัตุรัส · ถ้าไม่เผื่อไว้ ตัวแบบจะโดนบาดที่มือถือ</p>
+  <p>หมุดที่ใช้: <code>generous padding around the subject</code> · <code>keep the subject fully inside the central safe area</code> · <code>composition must survive a 1:1 center crop</code></p>
+
+  <div class="use"><span class="t">เคล็ดลับ</span>ก่อนเขียน prompt ให้ลากกรอบจริงบนกระดาษหรือในไฟล์ดีไซน์ก่อน แล้วดูว่าตรงไหนจะมีข้อความทับ — สิ่งที่คุณเห็นตรงนั้นแปลงเป็นบรรทัด framing ได้ตรง ๆ เลย</div>
+
+  <div class="note"><span class="t">สรุปบทที่ 5</span>ปลายทางเป็นตัวกำหนดองค์ประกอบ ไม่ใช่ความสวย · hero ต้องมีที่จองไว้วางข้อความ thumbnail ต้องอ่านออกตอนย่อ poster ต้องมีจุดเด่นเดียว slide ต้องไม่แย่งความสนใจ · negative space ต้องระบุครบสามอย่าง: ด้านไหน โล่งแค่ไหน เอาไว้ทำอะไร · เผื่อ crop ตั้งแต่ prompt แรก อย่ารอไปแก้ทีหลัง</div>
+  <div class="chapter-end">· · ·</div>
+</section>
+
+<!-- ============================ CH6 ============================ -->
+<section class="chapter" id="ch6">
+  <span class="alias" id="modes"></span>
+  <div class="ch-head">
+    <div class="row"><div class="num">06</div><h2>Generate · Edit · Reference — สามโหมด สามสมอง</h2></div>
+    <span class="chip" style="background:var(--l2-soft);color:var(--l2)">LEVEL 2 · แก้ให้ตรงจุด</span>
+  </div>
+
+  <p>ก่อนเขียน prompt บรรทัดแรก ต้องตอบให้ได้ก่อนว่าคุณอยู่ในโหมดไหน เพราะทั้งสามโหมดใช้วิธีคิดคนละแบบ และเขียนแบบเดียวกันไม่ได้</p>
+
+  <h3>6.1 แยกให้ออกใน 10 วินาที</h3>
+  <table>
+    <tr><th style="width:18%">โหมด</th><th style="width:30%">สถานการณ์</th><th>สิ่งที่ต้องเขียนให้ครบ</th></tr>
+    <tr><td><b>Generate</b></td><td>เริ่มจากศูนย์ ไม่มีภาพตั้งต้น</td><td>แผงหมุดทั้ง 4 หมวดจากบทที่ 2 โดยเฉพาะ use case, subject, composition และข้อห้าม</td></tr>
+    <tr><td><b>Edit</b></td><td>มีภาพอยู่แล้ว อยากแก้บางส่วน</td><td>สิ่งที่<b>เปลี่ยน</b> หนึ่งเรื่อง + รายการสิ่งที่<b>ห้ามเปลี่ยน</b> (บทที่ 7)</td></tr>
+    <tr><td><b>Reference</b></td><td>แนบรูปมาเป็นตัวอย่าง ไม่ได้ให้แก้รูปนั้น</td><td><b>หน้าที่ของแต่ละรูป</b> ว่าจะให้ดึงอะไรจากรูปไหน (บทที่ 10)</td></tr>
+  </table>
+
+  <h3>6.2 กับดักของโหมด Edit ที่ทุกคนเจอ</h3>
+  <p>สังเกตพฤติกรรมนี้ด้วยตัวเอง: สั่งแก้แค่ "ทำให้แสงนุ่มขึ้น" แล้วภาพที่ได้กลับมี<strong>หน้าคนเปลี่ยนไปนิดหนึ่ง มุมกล้องขยับ ถ้วยกาแฟย้ายที่</strong> ทั้งที่คุณไม่ได้แตะเรื่องพวกนั้นเลย</p>
+  <p>ปรากฏการณ์นี้บอกอะไรเรา — มันบอกว่าการแก้ภาพ<strong>ไม่ใช่การไประบายสีทับเฉพาะจุด</strong> แต่คือการสร้างภาพขึ้นมาใหม่ทั้งใบโดยพยายามให้ใกล้ของเดิม · แล้วเมื่อมันสร้างใหม่ ทุกช่องต้องถูกตอบใหม่หมด — และช่องที่คุณไม่ได้พูดถึงในรอบนี้ก็กลับไปเป็น "ช่องที่อนุญาตให้เดา" อีกครั้ง</p>
+  <blockquote>ในโหมด Edit ทุกอย่างที่คุณไม่ได้ล็อกไว้ คือทุกอย่างที่คุณอนุญาตให้มันเปลี่ยน</blockquote>
+  <p>นี่คือกลไกเดียวกับบทที่ 1 เป๊ะ ๆ เพียงแต่โผล่มาในรูปที่เจ็บกว่า เพราะรอบนี้คุณ<em>มีของดีอยู่แล้ว</em>แล้วมันหายไป · ทางแก้อยู่ในบทถัดไป</p>
+
+  <div class="warn"><span class="t">อย่าใช้ Edit แทน Generate</span>ถ้าสิ่งที่อยากแก้คือ use case, subject หลัก หรือองค์ประกอบทั้งภาพ — การไล่แก้ทีละรอบจะทำให้ภาพค่อย ๆ เละ · กรณีนี้ให้กลับไปเขียน prompt ใหม่ตั้งแต่ต้นเร็วกว่าและได้ผลดีกว่า</div>
+
+  <h3>6.3 แล้ว Reference ต่างจาก Edit ยังไง</h3>
+  <p>คนสับสนสองอันนี้บ่อยที่สุด ทั้งที่แนบรูปเหมือนกัน · ความต่างอยู่ที่<strong>รูปที่แนบมีสถานะอะไร</strong>:</p>
+  <ul>
+    <li><strong>Edit</strong> — รูปที่แนบคือ <em>ภาพผลลัพธ์</em> ที่จะถูกแก้ ต้องเหมือนเดิมเกือบทั้งหมด</li>
+    <li><strong>Reference</strong> — รูปที่แนบคือ <em>ตัวอย่าง</em> ที่จะถูกดึงบางมิติออกมาใช้ เช่น เอาเฉพาะหน้าคน เอาเฉพาะโทนแสง เอาเฉพาะการจัดวาง ส่วนภาพใหม่เป็นคนละภาพกันเลย</li>
+  </ul>
+  <p>ถ้าไม่บอกให้ชัดว่าอยู่โหมดไหน ผลที่ได้จะออกมาครึ่ง ๆ กลาง ๆ — เหมือนของเดิมเกินกว่าจะเป็นภาพใหม่ แต่ก็ไม่เหมือนพอที่จะเรียกว่าแก้</p>
+
+  <div class="note"><span class="t">สรุปบทที่ 6</span>สามโหมดใช้วิธีคิดคนละแบบ ต้องเลือกก่อนเขียนบรรทัดแรก · Edit ไม่ได้แก้เฉพาะจุด แต่สร้างใหม่ทั้งใบให้ใกล้ของเดิม ดังนั้นสิ่งที่ไม่ล็อกจะไหลกลับไปหาค่ากลาง · ถ้าจะเปลี่ยนโครงหลัก ให้เขียนใหม่ อย่าไล่แก้ · Reference ต่างจาก Edit ตรงที่รูปที่แนบเป็นตัวอย่างให้ดึงบางมิติ ไม่ใช่ภาพที่จะถูกแก้</div>
+  <div class="chapter-end">· · ·</div>
+</section>
+
+<!-- ============================ CH7 ============================ -->
+<section class="chapter" id="ch7">
+  <div class="ch-head">
+    <div class="row"><div class="num">07</div><h2>Invariant — ประโยคที่ทรงพลังที่สุดในเล่ม</h2></div>
+    <span class="chip" style="background:var(--l2-soft);color:var(--l2)">LEVEL 2 · แก้ให้ตรงจุด</span>
+  </div>
+
+  <p>ถ้าจะจำจากเล่มนี้ได้แค่ประโยคเดียว ให้จำประโยคนี้:</p>
+  <blockquote>Change only &lt;สิ่งที่ต้องแก้&gt;; keep &lt;สิ่งที่ดีอยู่แล้ว&gt; unchanged.</blockquote>
+
+  <h3>7.1 ทำไมมันได้ผล</h3>
+  <p>บทที่ 6 บอกว่าโหมด Edit เปิดทุกช่องให้เดาใหม่หมด · ประโยคข้างบนทำสิ่งเดียวคือ <strong>เปลี่ยนช่องว่างให้กลายเป็นหมุด</strong> — บอกตรง ๆ ว่าช่องไหนห้ามแตะ · มันไม่ใช่คาถา มันคือการกรอกแผงหมุดของบทที่ 2 อีกครั้ง เพียงแต่กรอกด้วยคำว่า "เหมือนเดิม"</p>
+
+  <div class="note"><span class="t">💡 invariant</span>สิ่งที่ต้องคงเดิมตลอดการแก้ เช่น หน้าคนเดิม ท่าเดิม มุมกล้องเดิม องค์ประกอบเดิม · ยืมคำมาจากสายโปรแกรม แปลว่า "สิ่งที่จริงเสมอไม่ว่าจะวนกี่รอบ"</div>
+
+  <figure class="fig">
+    <svg viewBox="0 0 720 324" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="เปรียบเทียบการแก้ภาพสองแบบ แถวบนสั่งแค่ให้แสงนุ่มขึ้นโดยไม่ล็อกอะไร ผลคือแสงนุ่มขึ้นจริงแต่หน้าคน มุมกล้อง และตำแหน่งของเปลี่ยนตามไปด้วย แถวล่างสั่งด้วยประโยค change only the lighting keep the same person pose and camera angle ผลคือแสงนุ่มขึ้นและส่วนที่เหลือคงเดิม">
+      <text x="30" y="24" class="mono" fill="#b3402e">ไม่ล็อกอะไรเลย</text>
+      <rect x="30" y="34" width="124" height="76" rx="9" fill="#f2ede3" stroke="#ddd5c6"/>
+      <text x="92" y="68" text-anchor="middle" class="lbl" font-size="12">ภาพรอบ 1</text>
+      <text x="92" y="86" text-anchor="middle" class="sub">ของดีอยู่ครบ</text>
+      <path d="M 158 72 H 268" class="flow-r" marker-end="url(#ar-r)"/>
+      <text x="213" y="62" text-anchor="middle" class="mono" fill="#b3402e">"ทำให้แสงนุ่มขึ้น"</text>
+      <rect x="274" y="28" width="216" height="88" rx="9" fill="#f6e3de" stroke="#b3402e" stroke-width="1.4"/>
+      <text x="382" y="50" text-anchor="middle" class="lbl" font-size="12">ภาพรอบ 2</text>
+      <text x="382" y="70" text-anchor="middle" class="sub">แสงนุ่มขึ้น ✓</text>
+      <text x="382" y="88" text-anchor="middle" class="sub" fill="#b3402e">หน้าเปลี่ยน ✗ มุมกล้องขยับ ✗</text>
+      <text x="382" y="106" text-anchor="middle" class="sub" fill="#b3402e">ถ้วยย้ายที่ ✗</text>
+      <text x="612" y="76" text-anchor="middle" class="sub" fill="#b3402e">ช่องที่ไม่ล็อก</text>
+      <text x="612" y="94" text-anchor="middle" class="sub" fill="#b3402e">= ไหลกลับหาค่ากลาง</text>
+
+      <line x1="30" y1="146" x2="690" y2="146" stroke="#ddd5c6" stroke-dasharray="4 4"/>
+
+      <text x="30" y="176" class="mono" fill="#0a5048">ล็อกด้วย invariant</text>
+      <text x="360" y="196" text-anchor="middle" class="mono" fill="#0a5048">"Change only the lighting;</text>
+      <text x="360" y="211" text-anchor="middle" class="mono" fill="#0a5048">keep the same person, pose, and camera angle unchanged."</text>
+      <rect x="30" y="226" width="124" height="76" rx="9" fill="#f2ede3" stroke="#ddd5c6"/>
+      <text x="92" y="260" text-anchor="middle" class="lbl" font-size="12">ภาพรอบ 1</text>
+      <text x="92" y="278" text-anchor="middle" class="sub">ของดีอยู่ครบ</text>
+      <path d="M 158 264 H 268" class="flow-t" marker-end="url(#ar-t)"/>
+      <text x="213" y="254" text-anchor="middle" class="mono" fill="#0a5048">แก้ตามนี้</text>
+      <rect x="274" y="222" width="216" height="84" rx="9" fill="#e2eeea" stroke="#0e6e63" stroke-width="1.4"/>
+      <text x="382" y="244" text-anchor="middle" class="lbl" font-size="12">ภาพรอบ 2</text>
+      <text x="382" y="264" text-anchor="middle" class="sub">แสงนุ่มขึ้น ✓</text>
+      <text x="382" y="284" text-anchor="middle" class="sub" fill="#0a5048">ที่เหลือเหมือนเดิม ✓</text>
+      <text x="612" y="256" text-anchor="middle" class="sub" fill="#0a5048">ช่องถูกปักหมุด</text>
+      <text x="612" y="274" text-anchor="middle" class="sub" fill="#0a5048">= ไม่มีที่ให้ไหล</text>
+    </svg>
+    <figcaption><b>FIG 7.1</b> — drift ไม่ใช่บั๊ก แต่คือผลตรง ๆ ของกลไกบทที่ 1 · invariant คือหมุดที่ตอกไม่ให้มันไหล</figcaption>
+  </figure>
+
+  <h3>7.2 ล็อกอะไรบ้าง — คลัง invariant ที่ใช้จริง</h3>
+  <p>เขียนเป็นรายการชื่อของตรง ๆ ได้ผลกว่าเขียนรวม ๆ ว่า "เหมือนเดิม" มาก</p>
+  <table>
+    <tr><th style="width:26%">งาน</th><th>ประโยคล็อกที่ใช้ได้ทันที</th></tr>
+    <tr><td><b>ภาพคน</b></td><td><code>Keep the same face, hair, body proportions, pose, and expression.</code></td></tr>
+    <tr><td><b>ภาพสินค้า</b></td><td><code>Keep the same product shape, material, label position, and camera angle.</code></td></tr>
+    <tr><td><b>ภาพฉาก</b></td><td><code>Keep the same composition, framing, and placement of all main objects.</code></td></tr>
+    <tr><td><b>งานที่ผ่านตาแล้ว</b></td><td><code>Keep the approved lighting direction and color grading.</code></td></tr>
+    <tr><td><b>อินโฟกราฟิก</b></td><td><code>Keep all existing labels and their exact spelling and positions.</code></td></tr>
+  </table>
+
+  <h3>7.3 ท่าประกอบร่างที่ใช้จริงในงาน</h3>
+  <div class="prompt-label">▸ โครงคำสั่งแก้ภาพที่ปลอดภัยที่สุด</div>
+  <pre><code><span class="ph">Change only:</span> <span class="cm"># หนึ่งเรื่องต่อรอบเท่านั้น</span>
+&lt;สิ่งที่ต้องแก้ เขียนให้ชัดว่าจะให้เป็นยังไง ไม่ใช่แค่บอกว่าไม่ชอบ&gt;
+
+<span class="ph">Keep unchanged:</span> <span class="cm"># ยิ่งเรียกชื่อของตรง ๆ ยิ่งแน่น</span>
+the same person, pose, and expression
+the same camera angle and framing
+the same placement of all objects on the counter
+the existing lighting direction
+
+<span class="ph">Still avoid:</span> <span class="cm"># ข้อห้ามเดิมต้องย้ำทุกรอบ ไม่งั้นมันกลับมา</span>
+logos, readable brand names, watermark, extra text</code></pre>
+  <p>บรรทัดสุดท้ายคือจุดที่คนพลาดบ่อยที่สุด — <strong>ข้อห้ามไม่ได้ติดตัวข้ามรอบ</strong> ถ้ารอบนี้ไม่ย้ำว่าห้ามมีป้าย ป้ายก็มีสิทธิ์กลับมา เพราะค่ากลางของฉากร้านกาแฟก็ยังมีป้ายอยู่ดี</p>
+
+  <div class="note"><span class="t">สรุปบทที่ 7</span><code>Change only X; keep Y unchanged.</code> คือประโยคที่แปลงช่องว่างเป็นหมุด · เรียกชื่อสิ่งที่ล็อกตรง ๆ ได้ผลกว่าพูดรวม ๆ · หนึ่งรอบเปลี่ยนหนึ่งเรื่อง · ข้อห้ามไม่ติดตัวข้ามรอบ ต้องย้ำใหม่ทุกครั้ง</div>
+  <div class="chapter-end">· · ·</div>
+</section>
+
+<!-- ============================ CH8 ============================ -->
+<section class="chapter" id="ch8">
+  <span class="alias" id="workflow"></span>
+  <div class="ch-head">
+    <div class="row"><div class="num">08</div><h2>Iterate 3 รอบ — เปลี่ยนทีละตัวแปร</h2></div>
+    <span class="chip" style="background:var(--l2-soft);color:var(--l2)">LEVEL 2 · แก้ให้ตรงจุด</span>
+  </div>
+
+  <p>ความเข้าใจผิดที่ทำให้คนเสียเวลามากที่สุดคือการหวังจบในรอบเดียว — เขียน prompt ยาวเหยียด ใส่ทุกอย่างที่นึกออก แล้วหวังว่าจะได้ภาพสมบูรณ์ · ผลที่ได้มักเป็นภาพที่ "เกือบใช่" แล้วคุณก็ไม่รู้ว่าจะไปแก้ตรงไหน เพราะมีตัวแปรเป็นสิบตัวปนกันอยู่</p>
+
+  <h3>8.1 สามรอบ สามหน้าที่</h3>
+  <table>
+    <tr><th style="width:14%">รอบ</th><th style="width:26%">หน้าที่</th><th>เขียน prompt ยังไง</th></tr>
+    <tr><td><b>รอบ 1</b></td><td>หา direction</td><td>brief ชัดแต่<b>ตั้งใจให้หลวม</b> — กรอกแค่หมวด ก. และ ข. ปล่อยรายละเอียดไว้ก่อน แล้วดูว่ามันตีความยังไง บางทีได้ไอเดียที่เราคิดไม่ถึง</td></tr>
+    <tr><td><b>รอบ 2</b></td><td>ล็อกของดี แก้ทีละเรื่อง</td><td>ใช้โครง <code>Change only … Keep unchanged …</code> จากบทที่ 7 · <b>หนึ่งรอบ หนึ่งตัวแปร</b></td></tr>
+    <tr><td><b>รอบ 3</b></td><td>production pass</td><td>ไล่ checklist บทที่ 12 — ตัวหนังสือมั่ว ขอบภาพ พื้นที่วางหัวข้อ และการรอด crop</td></tr>
+  </table>
+
+  <h3>8.2 กฎเหล็ก — หนึ่งรอบ หนึ่งตัวแปร</h3>
+  <p>ถ้าคุณแก้สามอย่างพร้อมกันแล้วภาพดีขึ้น <strong>คุณจะไม่มีวันรู้ว่าอันไหนทำให้ดีขึ้น</strong> และครั้งหน้าที่เจองานคล้าย ๆ กัน คุณก็ต้องเดาใหม่ทั้งหมด · การเปลี่ยนทีละตัวแปรจึงไม่ใช่แค่ทำให้ภาพนี้เสร็จ แต่คือการ<strong>สะสมความรู้ว่าคำไหนทำอะไร</strong> ซึ่งเป็นของที่ติดตัวไปทุกงาน</p>
+  <p>ข้อยกเว้นเดียว: ถ้าภาพผิดแนวทั้งใบตั้งแต่รอบแรก อย่าไปไล่แก้ทีละตัว — กลับไปเปลี่ยน use case แล้วเริ่มใหม่ (บทที่ 4)</p>
+
+  <h3>8.3 เก็บ prompt ทุกรอบไว้</h3>
+  <p>ฟังดูน่าเบื่อแต่คุ้มมาก: เก็บ prompt ของทุกรอบไว้ในไฟล์เดียว พร้อมโน้ตสั้น ๆ ว่ารอบนั้นเปลี่ยนอะไรและผลเป็นยังไง</p>
+  <ul>
+    <li>รอบ 4 พังกว่ารอบ 3 → ย้อนกลับไปตั้งต้นจากรอบ 3 ได้ทันที ไม่ต้องนั่งนึก</li>
+    <li>งานหน้าที่คล้ายกัน → หยิบ prompt รอบสุดท้ายมาแก้ไม่กี่บรรทัดก็จบ</li>
+    <li>ทำงานเป็นทีม → ส่ง prompt ให้คนอื่นทำต่อได้โดยไม่ต้องอธิบายอะไรเลย</li>
+  </ul>
+
+  <div class="use"><span class="t">เคล็ดลับ</span>ตั้งชื่อไฟล์ให้บอกตัวแปรที่เปลี่ยน เช่น <code>hero-r2-softer-light.txt</code> · หกเดือนผ่านไปคุณจะขอบคุณตัวเองที่ไม่ได้ตั้งชื่อว่า <code>hero-final-2.txt</code></div>
+
+  <div class="note"><span class="t">สรุปบทที่ 8</span>อย่าหวังจบรอบเดียว · รอบ 1 หา direction (ตั้งใจให้หลวม) รอบ 2 ล็อกของดีแล้วแก้ทีละเรื่อง รอบ 3 ตรวจ production · หนึ่งรอบหนึ่งตัวแปร เพื่อให้รู้ว่าอะไรทำให้ดีขึ้นจริง · ถ้าผิดแนวทั้งใบ ให้เริ่มใหม่ อย่าไล่แก้ · เก็บ prompt ทุกรอบพร้อมโน้ตว่าเปลี่ยนอะไร</div>
+  <div class="chapter-end">· · ·</div>
+</section>
+
+<!-- ============================ CH9 ============================ -->
+<section class="chapter" id="ch9">
+  <div class="ch-head">
+    <div class="row"><div class="num">09</div><h2>ตัวหนังสือในภาพ — ด่านที่พังบ่อยที่สุด</h2></div>
+    <span class="chip" style="background:var(--l3-soft);color:var(--l3)">LEVEL 3 · ด่านยาก</span>
+  </div>
+
+  <p>บทที่ 1 สัญญาไว้ว่าจะไขปริศนานี้ — <em>ทำไมภาพที่ผิวไม้ ผ้า และแสงสมจริงจนน่าทึ่ง กลับสะกดคำง่าย ๆ ผิด</em></p>
+
+  <h3>9.1 ทำไมตัวอักษรถึงเป็นคนละเรื่องกับส่วนอื่นของภาพ</h3>
+  <p>ลองคิดถึงใบไม้ในภาพหนึ่งใบ — ถ้าเส้นใบไม้เพี้ยนไปนิดหนึ่ง ไม่มีใครรู้ และภาพก็ยังถูกต้องอยู่ดี เพราะใบไม้ "ที่ถูก" มีได้เป็นล้านแบบ</p>
+  <p>ตัวอักษรตรงข้ามโดยสิ้นเชิง: คำว่า <code>Dripper</code> มีวิธีเขียนที่ถูก<strong>แบบเดียว</strong> · ผิดไปตัวเดียวก็ผิดทันที และตาคนจับได้ทันทีด้วย</p>
+  <blockquote>ส่วนอื่นของภาพผิดได้เป็นล้านแบบแล้วยังถูก แต่ตัวหนังสือถูกได้แบบเดียว</blockquote>
+  <p>นี่คือเหตุผลว่าทำไมยิ่งข้อความ<strong>ยาว</strong> ยิ่ง<strong>เล็ก</strong> และยิ่งมี<strong>หลายจุดในภาพ</strong> โอกาสพลาดยิ่งพุ่ง — และทำไม<strong>ภาษาไทยยากกว่าอังกฤษมาก</strong> เพราะสระกับวรรณยุกต์ลอยอยู่บนล่างและต้องวางถูกตำแหน่งเป๊ะ ๆ ทุกตัว</p>
+
+  <h3>9.2 กติกาที่ทำให้รอด</h3>
+  <ul>
+    <li><strong>สั้นที่สุดเท่าที่จะสั้นได้</strong> — ป้ายคำเดียวรอดง่ายกว่าประโยค · ถ้าเป็นไปได้ให้ตัดเหลือคำเดียวต่อป้าย</li>
+    <li><strong>ระบุแบบ verbatim ในเครื่องหมายคำพูด</strong> — <code>Text (verbatim): "Kettle", "Coffee Bed", "Server"</code> ชัดกว่าเขียนบรรยายว่าอยากได้ป้ายอะไรบ้าง</li>
+    <li><strong>บอกจำนวนป้าย</strong> — <code>exactly six labels, no additional text anywhere</code> กันไม่ให้มันแถมป้ายมาเอง</li>
+    <li><strong>ห้ามข้อความส่วนเกินเสมอ</strong> — <code>no extra text, no watermark, no signage</code> ต้องมีทุกครั้งแม้แต่ในภาพที่ตั้งใจให้มีข้อความ</li>
+    <li><strong>ตรวจด้วยตาทุกคำหลังสร้าง</strong> — ไม่มีข้อยกเว้น ต่อให้ห้ารอบก่อนหน้าถูกหมด รอบนี้ก็ยังผิดได้</li>
+  </ul>
+
+  <div class="warn"><span class="t">ภาษาไทยในภาพ — คำแนะนำที่ตรงไปตรงมา</span>อย่าฝากความหวังไว้กับการให้โมเดลเขียนภาษาไทยลงในภาพ โดยเฉพาะงานที่ต้องส่งจริง · ทางที่รอดกว่ามากคือ <strong>สั่งภาพให้เว้นที่ว่างไว้ แล้วใส่ข้อความไทยทีหลัง</strong>ด้วยเครื่องมือที่คุมฟอนต์ได้จริง (Figma, PowerPoint, Canva) — ได้ทั้งความถูกต้อง ฟอนต์ที่ตรงกับแบรนด์ และแก้คำได้ตลอดโดยไม่ต้องสร้างภาพใหม่</div>
+
+  <h3>9.3 กรณีอินโฟกราฟิก — ที่ที่ทุกกฎมาเจอกัน</h3>
+  <p>งาน <code>infographic-diagram</code> คือด่านรวมมิตร เพราะมันต้องการทั้งข้อความที่ถูก ลูกศรที่ชี้ถูก และลำดับการอ่านที่ถูกพร้อมกัน</p>
+  <div class="prompt-label">▸ prompt อินโฟกราฟิกที่ล็อกครบ</div>
+  <pre><code><span class="ph">$imagegen</span>
+Use case: infographic-diagram
+Asset type: educational poster draft
+Primary request: clear infographic explaining pour-over coffee flow
+Scene/backdrop: clean light background
+Subject: kettle, filter, coffee bed, dripper, server, cup, with arrows showing flow
+Style/medium: clean vector-like infographic, readable labels
+Composition/framing: vertical poster layout, top-to-bottom process
+<span class="gd">Text (verbatim): "Kettle", "Water Flow", "Coffee Bed", "Dripper", "Server", "Cup"</span>
+<span class="gd">Constraints: exactly six labels, sharp readable text, clear arrows between steps</span>
+<span class="bd">Avoid: tiny labels, extra text, decorative clutter, logos, watermark</span></code></pre>
+  <p>แม้จะล็อกครบขนาดนี้ <strong>ก็ยังต้องตรวจทุกคำอยู่ดี</strong> — คิดซะว่ามันคือดราฟต์ที่ดีมาก ไม่ใช่ไฟล์ส่งงาน</p>
+
+  <div class="note"><span class="t">สรุปบทที่ 9</span>ตัวอักษรมีคำตอบที่ถูกแบบเดียว ต่างจากส่วนอื่นของภาพที่ถูกได้เป็นล้านแบบ — นั่นคือเหตุผลทั้งหมดที่มันพังบ่อย · ยิ่งยาว ยิ่งเล็ก ยิ่งหลายจุด ยิ่งพลาด · ไทยยากกว่าอังกฤษเพราะสระวรรณยุกต์ต้องวางเป๊ะ · ทางที่รอดที่สุดคือเว้นที่ว่างแล้วใส่ข้อความทีหลัง · ทุกกรณีต้องตรวจด้วยตาทุกคำ</div>
+  <div class="chapter-end">· · ·</div>
+</section>
+
+<!-- ============================ CH10 ============================ -->
+<section class="chapter" id="ch10">
+  <span class="alias" id="reference"></span>
+  <div class="ch-head">
+    <div class="row"><div class="num">10</div><h2>ภาพอ้างอิงและ identity — บอกหน้าที่ของทุกรูป</h2></div>
+    <span class="chip" style="background:var(--l3-soft);color:var(--l3)">LEVEL 3 · ด่านยาก</span>
+  </div>
+
+  <p>ความเข้าใจผิดข้อใหญ่: คิดว่าแนบรูปแล้วความกำกวมจะลดลงเอง · จริง ๆ แล้วรูปหนึ่งใบมีข้อมูลอยู่หลายสิบมิติ — หน้าคน เสื้อผ้า แสง โทนสี การจัดวาง พื้นหลัง อารมณ์ สไตล์ · ถ้าไม่บอกว่าจะเอามิติไหน <strong>คุณเพิ่งเพิ่มความกำกวม ไม่ได้ลด</strong></p>
+
+  <h3>10.1 หนึ่งรูป หนึ่งหน้าที่</h3>
+  <p>กฎเดียวของบทนี้: <strong>ทุกรูปที่แนบต้องมีประโยคกำกับว่าให้ดึงอะไรจากมัน และย้ำว่าอย่าดึงอะไร</strong></p>
+  <div class="prompt-label">▸ Multi-reference prompt</div>
+  <pre><code><span class="ph">$imagegen</span>
+<span class="ph">Input images:</span>
+Image 1: identity reference for the person only
+Image 2: lighting and color grading reference
+Image 3: composition reference
+
+Primary request: create a new image using the same person from Image 1 in a new cafe scene
+<span class="gd">Use Image 1 only for facial identity, hair, and body proportions.</span>
+<span class="gd">Use Image 2 only for morning light direction and warm color grading.</span>
+<span class="gd">Use Image 3 only for wide hero framing and negative space.</span>
+Constraints: <span class="bd">do not copy background details, props, or clothing from any reference image</span>
+Avoid: logos, watermark, extra text</code></pre>
+  <p>สังเกตคำว่า <code>only</code> ที่ซ้ำทุกบรรทัด — มันไม่ได้ฟุ่มเฟือย มันคือหมุดที่กันไม่ให้แต่ละรูปแผ่อิทธิพลเกินหน้าที่ของตัวเอง</p>
+
+  <h3>10.2 รักษาตัวละครให้เหมือนเดิมข้ามหลายภาพ</h3>
+  <p>งานที่ต้องใช้ตัวละครเดิมซ้ำ ๆ (ซีรีส์ภาพประกอบ คาแรกเตอร์ประจำแบรนด์) ต้องมี <strong>anchor</strong> — ภาพตั้งต้นหนึ่งใบที่ทุกภาพหลังจากนั้นอ้างอิงกลับมา · ห้ามใช้ภาพล่าสุดเป็น anchor ของภาพถัดไปเรื่อย ๆ เพราะความเพี้ยนจะสะสมทีละนิดจนคนละคนโดยไม่รู้ตัว</p>
+  <div class="prompt-label">▸ Character consistency</div>
+  <pre><code><span class="ph">$imagegen</span>
+Use case: identity-preserve
+Input images: Image 1: character anchor reference
+Asset type: story scene illustration
+Primary request: same character from Image 1 reading a map beside a rainy train platform
+Scene/backdrop: quiet train platform at dusk, soft rain, practical travel details
+Style/medium: same illustration style as Image 1
+Composition/framing: medium-wide scene, character clearly visible, map held naturally
+Constraints: <span class="gd">preserve the same face, hair, outfit, proportions, and personality</span>; change only the scene and action; no text; no watermark
+Avoid: <span class="bd">redesigning the character, changing age, adding unrelated companions</span></code></pre>
+
+  <div class="use"><span class="t">เคล็ดลับ</span>เก็บภาพ anchor ไว้เป็นไฟล์ประจำโปรเจกต์ พร้อม prompt ที่สร้างมัน · ทุกภาพในซีรีส์อ้างกลับมาที่ใบนี้ใบเดียวเสมอ ไม่ใช่อ้างต่อ ๆ กันเป็นทอด ๆ</div>
+
+  <h3>10.3 เส้นที่ไม่ควรข้าม</h3>
+  <div class="warn"><span class="t">ใช้ภาพบุคคลด้วยความระมัดระวัง</span>ถ้าจะใช้รูปคนจริงเพื่อรักษา identity หรือหน้าตา ให้ใช้เฉพาะรูปที่<strong>คุณมีสิทธิ์ในภาพนั้นจริง</strong> — รูปของตัวเอง หรือได้รับอนุญาตจากทั้งเจ้าของภาพและบุคคลในภาพแล้ว · การหยิบรูปคนอื่นจากอินเทอร์เน็ตมาทำภาพใหม่ ไม่ใช่แค่เรื่องมารยาท แต่เป็นเรื่องสิทธิ์ในภาพลักษณ์ที่มีผลทางกฎหมายได้</div>
+  <p>เช่นเดียวกัน — ภาพอ้างอิงที่เป็นงานมีลิขสิทธิ์ (ภาพประกอบของศิลปิน แคมเปญของแบรนด์) ใช้ดูเป็นแรงบันดาลใจได้ แต่การสั่งให้ทำ "ให้เหมือนสไตล์ของคนนี้" แล้วเอาไปใช้เชิงพาณิชย์ เป็นคนละเรื่องกันและควรคิดให้ดีก่อน</p>
+
+  <div class="note"><span class="t">สรุปบทที่ 10</span>แนบรูปเฉย ๆ เพิ่มความกำกวม ไม่ได้ลด · ทุกรูปต้องมีหน้าที่กำกับพร้อมคำว่า only และมีบรรทัดห้ามดึงสิ่งที่ไม่ต้องการ · งานตัวละครต่อเนื่องต้องมี anchor ใบเดียวที่ทุกภาพอ้างกลับมา อย่าอ้างต่อกันเป็นทอด · ใช้ภาพบุคคลเฉพาะที่มีสิทธิ์และได้รับอนุญาตแล้ว</div>
+  <div class="chapter-end">· · ·</div>
+</section>
+
+<!-- ============================ CH11 ============================ -->
+<section class="chapter" id="ch11">
+  <span class="alias" id="repair"></span>
+  <div class="ch-head">
+    <div class="row"><div class="num">11</div><h2>วินิจฉัยจากอาการ — ตารางที่เปิดใช้ตอนงานด่วน</h2></div>
+    <span class="chip" style="background:var(--l4-soft);color:var(--l4)">LEVEL 4 · ส่งงานจริง</span>
+  </div>
+
+  <p>บทนี้คือทั้งเล่มบีบลงเหลือตารางเดียว · ทุกแถวเดินตามเส้นเดิม: <strong>อาการ → ช่องที่เว้นว่างไว้ → ประโยคที่ปิดช่องนั้น</strong> · เปิดอ่านตอนงานด่วนได้เลยโดยไม่ต้องย้อนไปอ่านบท</p>
+
+  <table>
+    <tr><th style="width:24%">อาการที่เห็น</th><th style="width:26%">รากของปัญหา</th><th>ประโยคที่ใช้แก้</th></tr>
+    <tr>
+      <td><b>ดูเหมือน stock photo</b></td>
+      <td>ค่ากลางของ "ภาพสวย" ชนะ เพราะไม่ได้ระบุความไม่เพอร์เฟ็กต์ (บท 1, 3)</td>
+      <td><code>Make it more natural and less staged. Add imperfect everyday detail and real material texture. Keep the same framing and subject.</code></td>
+    </tr>
+    <tr>
+      <td><b>วางหัวข้อไม่ลง</b></td>
+      <td>ไม่ได้จองพื้นที่ไว้ตั้งแต่แรก (บท 5)</td>
+      <td><code>Increase clean negative space on the right third for a headline. Do not move the subject away from the main action.</code></td>
+    </tr>
+    <tr>
+      <td><b>มีตัวหนังสือหรือโลโก้แปลก ๆ</b></td>
+      <td>ไม่ได้ห้าม หรือห้ามไว้รอบก่อนแล้วไม่ได้ย้ำรอบนี้ (บท 7, 9)</td>
+      <td><code>Remove any readable text, signage, labels, and brand marks. Keep the atmosphere and composition unchanged.</code></td>
+    </tr>
+    <tr>
+      <td><b>แก้แล้วคนในภาพเปลี่ยน</b></td>
+      <td>โหมด Edit เปิดทุกช่องให้เดาใหม่ (บท 6, 7)</td>
+      <td><code>Keep the same person, pose, camera angle, and composition unchanged. Change only the lighting.</code></td>
+    </tr>
+    <tr>
+      <td><b>พื้นหลังรกแย่งสายตา</b></td>
+      <td>ไม่ได้ระบุระดับความ "นิ่ง" ของฉาก</td>
+      <td><code>Make the background simpler and less distracting while preserving the same place and mood.</code></td>
+    </tr>
+    <tr>
+      <td><b>ผิววัสดุดูเป็นพลาสติก</b></td>
+      <td>ช่อง Materials ว่าง ค่ากลางจึงเรียบเนียนเกินจริง (บท 3)</td>
+      <td><code>Add realistic material detail: uneven wood grain, worn fabric, matte ceramic with subtle glaze variation. Keep everything else unchanged.</code></td>
+    </tr>
+    <tr>
+      <td><b>ผิดแนวทั้งใบ</b></td>
+      <td>use case ผิดตั้งแต่บรรทัดแรก (บท 4)</td>
+      <td>อย่าไล่แก้ — เปลี่ยน <code>Use case:</code> แล้วเขียนใหม่ตั้งแต่ต้น</td>
+    </tr>
+    <tr>
+      <td><b>ป้ายในอินโฟกราฟิกสะกดผิด</b></td>
+      <td>ตัวอักษรถูกได้แบบเดียว (บท 9)</td>
+      <td><code>Keep the exact same layout and arrows. Fix only the label text to read exactly: "…", "…". No other text anywhere.</code></td>
+    </tr>
+    <tr>
+      <td><b>มือถือ crop แล้วบาดตัวแบบ</b></td>
+      <td>ไม่ได้เผื่อ safe area (บท 5)</td>
+      <td><code>Add generous padding around the subject so the composition survives a 1:1 center crop.</code></td>
+    </tr>
+    <tr>
+      <td><b>แก้ไปหลายรอบแล้วยิ่งเละ</b></td>
+      <td>สะสม drift จากการเปลี่ยนหลายตัวแปรต่อรอบ (บท 8)</td>
+      <td>ย้อนกลับไปที่รอบที่ยังดีอยู่ แล้วเริ่มใหม่จากตรงนั้น เปลี่ยนทีละตัวแปร</td>
+    </tr>
+  </table>
+
+  <div class="use"><span class="t">อ่านตารางนี้ยังไงให้ได้ของติดตัว</span>อย่าจำแค่คอลัมน์ขวา ให้จำคอลัมน์กลาง — เพราะวันที่เจออาการใหม่ที่ไม่มีในตาราง คุณจะเขียนคอลัมน์ขวาเองได้ ถ้าตอบได้ว่า "ช่องไหนที่ฉันปล่อยให้มันเดา"</div>
+
+  <div class="note"><span class="t">สรุปบทที่ 11</span>ทุกอาการวินิจฉัยด้วยคำถามเดียวกัน: ช่องไหนถูกเว้นว่างไว้ · อาการ "ผิดแนวทั้งใบ" กับ "แก้จนเละ" สองอันนี้ห้ามแก้ด้วยการไล่ปรับ ต้องถอยกลับไปตั้งต้นใหม่ · จำคอลัมน์กลางให้แม่น แล้วคอลัมน์ขวาจะเขียนเองได้</div>
+  <div class="chapter-end">· · ·</div>
+</section>
+
+<!-- ============================ CH12 ============================ -->
+<section class="chapter" id="ch12">
+  <span class="alias" id="quality"></span><span class="alias" id="examples"></span>
+  <div class="ch-head">
+    <div class="row"><div class="num">12</div><h2>Quality gate &amp; คลัง prompt พร้อมใช้</h2></div>
+    <span class="chip" style="background:var(--l4-soft);color:var(--l4)">LEVEL 4 · ส่งงานจริง</span>
+  </div>
+
+  <p>บทสุดท้ายมีสองส่วน: ด่านตรวจก่อนบอกว่างานเสร็จ และคลัง prompt ที่หยิบไปแก้ต่อได้เลย</p>
+
+  <h3>12.1 ด่านตรวจก่อนส่ง</h3>
+  <p>ไล่ทีละข้อก่อนเอาภาพไปวางบนเว็บ โพสต์ สไลด์ หรือสื่อโฆษณา · ข้อไหนตอบไม่ได้แปลว่ายังไม่เสร็จ</p>
+  <ul class="check">
+    <li>ตอบได้ไหมว่าภาพนี้ทำหน้าที่อะไร และไปวางตรงไหน</li>
+    <li>ตัวแบบกับ action อ่านออกภายในสองวินาทีแรกไหม</li>
+    <li>มีพื้นที่พอสำหรับข้อความหรือ UI ที่จะวางทับไหม และมันโล่งจริงไม่ใช่แค่เบลอ</li>
+    <li>ภาพรอด crop ทั้งจอใหญ่และมือถือโดยไม่บาดตัวแบบไหม</li>
+    <li>แสงไปทางเดียวกันทั้งภาพ และตรงกับอารมณ์ที่ตั้งใจไหม</li>
+    <li>มีโลโก้ ตัวหนังสือมั่ว watermark หรือ brand mark ที่ไม่ควรมีหลงเหลือไหม</li>
+    <li>ผิววัสดุดูจับต้องได้ไหม — ผ้า ไม้ เซรามิก โลหะ กระจก</li>
+    <li>ถ้ามีข้อความในภาพ สะกดถูกทุกตัวอักษรและไม่มีคำเกินมาไหม (ตรวจด้วยตา ไม่ใช่ความรู้สึก)</li>
+    <li>ถ้าเป็นงานแก้ ได้ระบุชัดไหมว่าอะไรห้ามเปลี่ยน และของนั้นยังอยู่ครบจริงไหม</li>
+    <li>ถ้าใช้ภาพอ้างอิงที่มีคนจริง มีสิทธิ์ในภาพนั้นและได้รับอนุญาตแล้วหรือยัง</li>
+  </ul>
+
+  <h3>12.2 คลัง prompt</h3>
+  <p>ทุกอันข้างล่างตั้งใจให้หยิบไปแก้ต่อ — เปลี่ยนตัวแบบ สถานที่ โทน และข้อจำกัดให้ตรงกับงานคุณ · Master template กับตัวอย่างภาพหัวเว็บอยู่ในบทที่ 2 แล้ว</p>
+
+  <h4>ภาพสินค้า</h4>
+  <pre><code><span class="ph">$imagegen</span>
 Use case: product-mockup
 Asset type: landing page product image
 Primary request: premium product photo of a small matte ceramic coffee dripper
@@ -929,49 +950,36 @@ Color palette: off-white ceramic, warm neutral surface, deep green accent leaf
 Materials/textures: matte ceramic texture, subtle glaze variation, soft paper filter
 Constraints: crisp silhouette, no logos, no text, no watermark
 Avoid: plastic look, heavy reflection, decorative clutter</code></pre>
-          </div>
 
-          <div class="code-panel">
-            <div class="code-bar">
-              <span>Infographic Draft</span>
-              <button class="copy-button" type="button" data-copy="info-prompt" aria-label="Copy infographic draft prompt">Copy</button>
-            </div>
-            <pre id="info-prompt"><code>$imagegen
-Use case: infographic-diagram
-Asset type: educational poster draft
-Primary request: clear infographic explaining pour-over coffee flow
-Scene/backdrop: clean light background
-Subject: kettle, filter, coffee bed, dripper, server, cup, with arrows showing flow
-Style/medium: clean vector-like infographic, readable labels
-Composition/framing: vertical poster layout, top-to-bottom process
-Text (verbatim): "Kettle", "Water Flow", "Coffee Bed", "Dripper", "Server", "Cup"
-Constraints: sharp text, concise labels, clear arrows, no logos, no watermark, no extra text
-Avoid: tiny labels, decorative clutter, unrealistic coffee equipment</code></pre>
-          </div>
+  <h4>หน้าจอแอปสำหรับพรีเซนต์</h4>
+  <pre><code><span class="ph">$imagegen</span>
+Use case: ui-mockup
+Asset type: slide visual for a product pitch
+Primary request: mobile app screen for tracking a daily reading habit
+Scene/backdrop: plain neutral background, screen shown straight on
+Subject: single phone screen, not a device photo
+Style/medium: clean shippable UI, flat design system look, not concept art
+Composition/framing: full screen filling the frame with even margins
+Color palette: warm neutral base with one deep green accent
+Text (verbatim): "Today", "7-day streak", "Start reading"
+Constraints: clear visual hierarchy, real UI components, exactly three text labels
+Avoid: lorem ipsum, unreadable micro text, floating glass panels, decorative gradients</code></pre>
 
-          <div class="code-panel">
-            <div class="code-bar">
-              <span>Character Consistency</span>
-              <button class="copy-button" type="button" data-copy="character-prompt" aria-label="Copy character consistency prompt">Copy</button>
-            </div>
-            <pre id="character-prompt"><code>$imagegen
-Use case: identity-preserve
-Input images: Image 1: character anchor reference
-Asset type: story scene illustration
-Primary request: same character from Image 1 reading a map beside a rainy train platform
-Scene/backdrop: quiet train platform at dusk, soft rain, practical travel details
-Style/medium: same illustration style as Image 1
-Composition/framing: medium-wide scene, character clearly visible, map held naturally
-Constraints: preserve the same face, hair, outfit, proportions, and personality; change only the scene and action; no text; no watermark
-Avoid: redesigning the character, changing age, adding unrelated companions</code></pre>
-          </div>
+  <h4>ภาพเล่าเรื่อง</h4>
+  <pre><code><span class="ph">$imagegen</span>
+Use case: illustration-story
+Asset type: children's book spread
+Primary request: a small girl sharing an umbrella with a stray cat on a flooded soi
+Scene/backdrop: Bangkok side street after heavy rain, warm shophouse lights reflecting on water
+Subject: girl crouching to hold the umbrella lower over the cat, cat looking up at her
+Style/medium: soft watercolor illustration with visible paper texture
+Composition/framing: horizontal spread, characters slightly left of center, room on the right for a short caption
+Lighting/mood: dusk, warm and gentle, hopeful
+Constraints: consistent character design, clear silhouettes, no text in the image
+Avoid: photorealism, scary mood, cluttered background</code></pre>
 
-          <div class="code-panel">
-            <div class="code-bar">
-              <span>Transparent Asset Draft</span>
-              <button class="copy-button" type="button" data-copy="transparent-prompt" aria-label="Copy transparent asset draft prompt">Copy</button>
-            </div>
-            <pre id="transparent-prompt"><code>$imagegen
+  <h4>ชิ้นส่วนสำหรับตัดพื้นหลัง</h4>
+  <pre><code><span class="ph">$imagegen</span>
 Use case: background-extraction
 Asset type: transparent website sticker asset
 Primary request: single ceramic coffee cup sticker with simple opaque cream steam shapes
@@ -980,163 +988,91 @@ Subject: cup centered with generous padding and crisp silhouette
 Style/medium: clean semi-realistic sticker-style asset
 Constraints: background must be one uniform color; no shadows, gradients, floor plane, reflections, logos, watermark, or text; do not use #00ff00 anywhere in the cup
 Avoid: glass, translucent steam, smoke, soft contact shadow, busy props</code></pre>
-          </div>
-        </section>
 
-        <section id="reference">
-          <div class="section-head">
-            <p class="eyebrow">08 / References</p>
-            <h2>ใช้ภาพอ้างอิงแบบระบุหน้าที่</h2>
-            <p class="lead">อย่าแนบรูปแล้วหวังให้ Codex เดาเอง ให้บอกว่าแต่ละภาพควรถูกใช้เพื่ออะไร</p>
-          </div>
+  <h4>แนวคิดโลโก้</h4>
+  <pre><code><span class="ph">$imagegen</span>
+Use case: logo-brand
+Asset type: logo concept exploration for a small coffee roastery
+Primary request: simple mark combining a coffee bean and a rising sun
+Style/medium: flat vector-like mark, single weight, geometric
+Composition/framing: centered mark on plain background, generous padding
+Color palette: one deep green and one warm off-white, no gradients
+Constraints: strong silhouette, must stay readable at 32px, no text, no watermark
+Avoid: photographic detail, gradient mesh, drop shadows, thin hairline strokes</code></pre>
 
-          <div class="callout">
-            <h3>ใช้ภาพบุคคลด้วยความระมัดระวัง</h3>
-            <p>ถ้าใช้รูปคนจริงเพื่อรักษา identity หรือ likeness ให้ใช้เฉพาะรูปที่คุณมีสิทธิ ใช้รูปของตัวเอง หรือได้รับอนุญาตจากเจ้าของภาพและบุคคลในภาพแล้ว</p>
-          </div>
+  <div class="note"><span class="t">สรุปบทที่ 12</span>ด่านตรวจสิบข้อคือทั้งเล่มบีบเป็นคำถาม — ข้อไหนตอบไม่ได้แปลว่ายังไม่เสร็จ · ข้อความในภาพต้องตรวจด้วยตาเสมอ · คลัง prompt ไม่ได้ให้ใช้ตรง ๆ แต่ให้ใช้เป็นโครงแล้วเปลี่ยนหมุดให้ตรงงาน</div>
+  <div class="chapter-end">· · ·</div>
+</section>
 
-          <div class="code-panel">
-            <div class="code-bar">
-              <span>Multi-reference Prompt</span>
-              <button class="copy-button" type="button" data-copy="reference-prompt" aria-label="Copy multi-reference prompt">Copy</button>
-            </div>
-            <pre id="reference-prompt"><code>$imagegen
-Input images:
-Image 1: identity reference for the person only
-Image 2: lighting and color grading reference
-Image 3: composition reference
-
-Primary request: create a new image using the same person from Image 1 in a new cafe scene
-Use Image 1 only for facial identity, hair, and body proportions.
-Use Image 2 only for morning light and warm color grading.
-Use Image 3 only for wide hero framing and negative space.
-Constraints: do not copy background details from the reference images; preserve identity; no logos; no watermark; no extra text</code></pre>
-          </div>
-        </section>
-
-        <section id="repair">
-          <div class="section-head">
-            <p class="eyebrow">09 / Repair Language</p>
-            <h2>คำสั่งแก้ภาพที่ใช้บ่อย</h2>
-            <p class="lead">การแก้ภาพที่ดีต้องสั้น ชัด และล็อก invariant ทุกครั้ง</p>
-          </div>
-
-          <div class="repair-grid">
-            <article class="repair">
-              <strong>ลดความจัดฉาก</strong>
-              <span>Make it more natural and less staged. Keep the same framing and subject.</span>
-            </article>
-            <article class="repair">
-              <strong>เพิ่มพื้นที่วางข้อความ</strong>
-              <span>Increase usable negative space on the right. Do not move the subject away from the main action.</span>
-            </article>
-            <article class="repair">
-              <strong>แก้เฉพาะแสง</strong>
-              <span>Keep the same person, pose, equipment, and camera angle. Change only the lighting to softer morning light.</span>
-            </article>
-            <article class="repair">
-              <strong>เอาตัวหนังสือมั่วออก</strong>
-              <span>Remove any readable text or brand marks. Keep the atmosphere and composition unchanged.</span>
-            </article>
-            <article class="repair">
-              <strong>ทำ background ให้นิ่งขึ้น</strong>
-              <span>Make the background simpler and less distracting while preserving the place and mood.</span>
-            </article>
-            <article class="repair">
-              <strong>รักษาคนเดิม</strong>
-              <span>Preserve the same face, hair, body proportions, pose, and expression. Change only the requested clothing.</span>
-            </article>
-          </div>
-        </section>
-
-        <section id="quality">
-          <div class="section-head">
-            <p class="eyebrow">10 / Quality Gate</p>
-            <h2>เช็กก่อนเรียกว่างานเสร็จ</h2>
-            <p class="lead">ใช้ checklist นี้ทุกครั้งก่อนนำภาพไปวางในเว็บ โพสต์ โฆษณา หรือ deck</p>
-          </div>
-
-          <ul class="checklist">
-            <li>ภาพนี้ใช้ทำอะไรชัดไหม เช่น hero, poster, thumbnail, product shot</li>
-            <li>subject และ action อ่านออกภายในไม่กี่วินาทีไหม</li>
-            <li>composition มีพื้นที่พอสำหรับข้อความหรือ UI ที่จะวางทับไหม</li>
-            <li>แสงดูสมจริงและไปทางเดียวกับอารมณ์ที่ต้องการไหม</li>
-            <li>มีโลโก้ ตัวหนังสือมั่ว watermark หรือ brand mark ที่ไม่ควรมีไหม</li>
-            <li>texture ของวัสดุดูจับต้องได้ไหม เช่น ผ้า ไม้ เซรามิก โลหะ กระจก</li>
-            <li>ถ้าเป็นงาน edit ได้บอกชัดไหมว่าอะไรห้ามเปลี่ยน</li>
-            <li>ถ้ามี text ในภาพ สะกดถูกทุกตัวและไม่มีข้อความเกินมาหรือไม่</li>
-          </ul>
-
-          <div class="section-head" style="margin-top: var(--space-12);">
-            <p class="eyebrow">11 / Common Problems</p>
-            <h2>เมื่อภาพยังไม่ใช่ ให้แก้แบบนี้</h2>
-          </div>
-
-          <details>
-            <summary>ภาพดูเหมือน stock photo เกินไป</summary>
-            <div>เพิ่มคำว่า natural candid moment, imperfect everyday detail, less staged และใส่รายละเอียด texture จริง เช่น worn fabric, uneven wood grain, soft dust in morning light</div>
-          </details>
-          <details>
-            <summary>ภาพสวยแต่ใช้วางข้อความไม่ได้</summary>
-            <div>สั่งเพิ่ม negative space ตามด้านที่ต้องการ เช่น clean negative space on the right for headline แล้วระบุว่าอย่าย้าย subject ออกจาก action หลัก</div>
-          </details>
-          <details>
-            <summary>มีตัวหนังสือหรือโลโก้แปลก ๆ</summary>
-            <div>ใส่ constraints ให้หนักขึ้น: no readable brand names, no signage, no labels, no extra text, no watermark แล้ว iterate เฉพาะการลบข้อความ</div>
-          </details>
-          <details>
-            <summary>แก้ภาพแล้ว subject เปลี่ยนไป</summary>
-            <div>ใช้ invariant ก่อนคำสั่งแก้: keep the same person, pose, camera angle, composition, and main objects unchanged. Change only...</div>
-          </details>
-        </section>
-      </main>
-    </div>
-
-    <footer class="footer">
-      <p>ไฟล์นี้ออกแบบให้เปิดจากเครื่องได้โดยตรง ถ้าจะใช้ในโปรเจกต์เว็บ ให้วางไฟล์ HTML และโฟลเดอร์ asset ไว้คู่กัน</p>
-    </footer>
+<!-- ============================ GLOSSARY ============================ -->
+<section class="chapter" id="glossary">
+  <div class="ch-head">
+    <div class="row"><div class="num">＋</div><h2>ภาคผนวก · ศัพท์ที่ใช้ในเล่ม</h2></div>
+    <span class="chip" style="background:var(--paper-2);color:var(--ink-soft)">APPENDIX · เปิดหาเร็ว</span>
   </div>
+  <table>
+    <tr><th style="width:24%">คำ</th><th>ความหมายในเล่มนี้</th></tr>
+    <tr><td><code>ค่ากลาง</code></td><td>คำตอบที่พบบ่อยที่สุด ที่โมเดลหยิบมาเติมช่องที่คุณไม่ได้ระบุ — กลไกแกนของทั้งเล่ม (บท 1)</td></tr>
+    <tr><td><code>brief</code></td><td>โจทย์ย่อของภาพ บอกเป้าหมาย ผู้ชม บริบท และข้อจำกัด</td></tr>
+    <tr><td><code>asset</code></td><td>ไฟล์ภาพที่นำไปใช้จริง เช่น hero, thumbnail, ไอคอน, โปสเตอร์, ภาพประกอบสไลด์</td></tr>
+    <tr><td><code>use case</code></td><td>ชนิดของงานที่สลับกองอ้างอิงทั้งชุดที่โมเดลใช้เดา (บท 4)</td></tr>
+    <tr><td><code>invariant</code></td><td>สิ่งที่ต้องคงเดิมตลอดการแก้ เช่น หน้าเดิม ท่าเดิม มุมกล้องเดิม (บท 7)</td></tr>
+    <tr><td><code>drift</code></td><td>อาการที่ของซึ่งไม่ได้ล็อกไว้ค่อย ๆ เปลี่ยนไปทีละรอบ จนผิดจากของเดิม (บท 6–8)</td></tr>
+    <tr><td><code>iterate</code></td><td>แก้เป็นรอบ ๆ โดยล็อกของดีไว้แล้วเปลี่ยนทีละเรื่อง (บท 8)</td></tr>
+    <tr><td><code>negative space</code></td><td>พื้นที่ที่จองไว้ล่วงหน้าสำหรับวางหัวข้อ ปุ่ม หรือ UI โดยไม่บังตัวแบบ (บท 5)</td></tr>
+    <tr><td><code>safe area</code></td><td>โซนกลางภาพที่ต้องรอดทุกอัตราส่วนที่จะถูก crop (บท 5)</td></tr>
+    <tr><td><code>silhouette</code></td><td>รูปทรงรวมของวัตถุ ถ้าแข็งแรงคนจะจำได้แม้เห็นเป็นเงาดำ สำคัญกับ thumbnail และโลโก้</td></tr>
+    <tr><td><code>fidelity</code></td><td>ระดับความละเอียดของงาน mockup ตั้งแต่ wireframe หยาบ ๆ ไปจนถึงหน้าจอที่เหมือนของจริง</td></tr>
+    <tr><td><code>color grading</code></td><td>การปรับโทนสีรวมของภาพให้ไปทางเดียวกัน เช่น อุ่น นิ่ง สด หรือแบบภาพยนตร์</td></tr>
+    <tr><td><code>verbatim</code></td><td>ข้อความที่ต้องแสดงตรงตัวทุกตัวอักษร ใช้กับป้าย tagline และ label (บท 9)</td></tr>
+    <tr><td><code>anchor</code></td><td>ภาพตั้งต้นหนึ่งใบที่ทุกภาพในซีรีส์อ้างอิงกลับมา เพื่อกันตัวละครเพี้ยนสะสม (บท 10)</td></tr>
+  </table>
+  <div class="chapter-end">· · ·</div>
+</section>
 
-  <script>
-    const copyButtons = document.querySelectorAll("[data-copy]");
+<footer>
+  <p><b>ปิดเล่ม —</b> ถ้าอ่านมาถึงตรงนี้แล้วยังจำอะไรไม่ได้เลย ให้จำข้อเดียวพอ: <b>ทุกช่องที่คุณไม่ระบุ โมเดลเติมด้วยค่ากลาง</b> · ที่เหลือทั้งเล่มคือรายละเอียดว่าช่องไหนคุ้มค่าจะปักหมุด และปักด้วยคำว่าอะไร</p>
+  <p><b>อ่านต่อ:</b> ถ้าอยากขยับจากการกำกับภาพไปสู่การกำกับ AI ทั้งระบบ → <a href="https://tayakorn221.github.io/prompt-engineering-handbook/">Prompt 0 → Hero</a> แล้วต่อด้วย <a href="https://tayakorn221.github.io/harness-engineering-handbook/">Harness Engineering</a></p>
+  <p>เรียงพิมพ์ด้วย Bai&nbsp;Jamjuree &amp; Anuphan · ส่วนหนึ่งของ <a href="https://tayakorn221.github.io/handbooks/">Handbooks — เขียนเพื่อเข้าใจ ไม่ใช่เพื่อท่องจำ</a> · โดย <a href="https://github.com/tayakorn221">@tayakorn221</a> · 2026</p>
+</footer>
 
-    async function copyText(text) {
-      if (navigator.clipboard && window.isSecureContext) {
-        await navigator.clipboard.writeText(text);
-        return;
-      }
+</main>
+</div>
 
-      const textarea = document.createElement("textarea");
-      textarea.value = text;
-      textarea.setAttribute("readonly", "");
-      textarea.style.position = "fixed";
-      textarea.style.left = "-9999px";
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand("copy");
-      textarea.remove();
-    }
+<script>
+const pb=document.getElementById('progress');
+addEventListener('scroll',()=>{const h=document.documentElement;const sc=h.scrollTop/(h.scrollHeight-h.clientHeight||1);pb.style.width=(sc*100)+'%';},{passive:true});
 
-    copyButtons.forEach((button) => {
-      button.addEventListener("click", async () => {
-        const target = document.getElementById(button.dataset.copy);
-        if (!target) return;
+const links=[...document.querySelectorAll('.toc a')];
+const map=new Map();
+links.forEach(a=>{const el=document.getElementById(a.getAttribute('href').slice(1));if(el)map.set(el,a);});
+const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){links.forEach(l=>l.classList.remove('active'));const a=map.get(e.target);if(a)a.classList.add('active');}});},{rootMargin:'-12% 0px -78% 0px',threshold:0});
+map.forEach((a,el)=>io.observe(el));
 
-        const original = button.textContent;
-        try {
-          await copyText(target.innerText.trim());
-          button.textContent = "Copied";
-          window.setTimeout(() => {
-            button.textContent = original;
-          }, 1400);
-        } catch {
-          button.textContent = "Select text";
-          window.setTimeout(() => {
-            button.textContent = original;
-          }, 1800);
-        }
-      });
-    });
-  </script>
+const tg=document.getElementById('tocToggle'),toc=document.getElementById('toc');
+if(tg)tg.addEventListener('click',()=>toc.classList.toggle('open'));
+if(toc)toc.addEventListener('click',e=>{if(e.target.closest('a')&&innerWidth<=1080)toc.classList.remove('open');});
+
+// ปุ่มคัดลอกในกล่องโค้ดทุกกล่อง
+document.querySelectorAll('main pre').forEach(pre=>{
+  const btn=document.createElement('button');
+  btn.type='button';btn.className='copy-btn';btn.textContent='คัดลอก';
+  btn.setAttribute('aria-label','คัดลอกข้อความในกล่องนี้');
+  btn.addEventListener('click',()=>{
+    const code=pre.querySelector('code');
+    const text=((code?code.textContent:pre.textContent)||'').replace(/\s+$/,'');
+    const done=()=>{btn.textContent='คัดลอกแล้ว ✓';btn.classList.add('done');setTimeout(()=>{btn.textContent='คัดลอก';btn.classList.remove('done');},1600);};
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(done).catch(()=>copyFallback(text,done,btn));}
+    else{copyFallback(text,done,btn);}
+  });
+  pre.appendChild(btn);
+});
+function copyFallback(text,done,btn){
+  const ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.top='-9999px';
+  document.body.appendChild(ta);ta.focus();ta.select();
+  try{document.execCommand('copy');done();}catch(e){btn.textContent='คัดลอกไม่ได้';}
+  document.body.removeChild(ta);
+}
+</script>
 </body>
 </html>
